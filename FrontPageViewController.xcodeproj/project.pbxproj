@@ -6,9 +6,56 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BA1A2EC51EEB7371001D6BD3 /* FPIApp.m in Sources */ = {isa = PBXBuildFile; fileRef = BA1A2EC41EEB7371001D6BD3 /* FPIApp.m */; };
+		BA308AE51EE4A8D400F407D4 /* FPISystem.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308AE41EE4A8D400F407D4 /* FPISystem.m */; };
+		BA308AE81EE4C11000F407D4 /* FPIBattery.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308AE71EE4C11000F407D4 /* FPIBattery.m */; };
+		BA308AEB1EE4C5DC00F407D4 /* FPIStatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308AEA1EE4C5DC00F407D4 /* FPIStatusBar.m */; };
+		BA308AEE1EE4CBEF00F407D4 /* FPISwitcher.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308AED1EE4CBEF00F407D4 /* FPISwitcher.m */; };
+		BA308AF11EE4D04600F407D4 /* FPIApps.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308AF01EE4D04600F407D4 /* FPIApps.m */; };
+		BA308AF41EE4D54700F407D4 /* FPIMusic.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308AF31EE4D54700F407D4 /* FPIMusic.m */; };
+		BA308AF71EE4DB0F00F407D4 /* FPIWeather.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308AF61EE4DB0F00F407D4 /* FPIWeather.m */; };
+		BA308AFA1EE4E1C000F407D4 /* FPINotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308AF91EE4E1C000F407D4 /* FPINotifications.m */; };
+		BA308AFD1EE5011500F407D4 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA308AFC1EE5011500F407D4 /* CoreFoundation.framework */; };
+		BA308B001EE50EB000F407D4 /* FPIFolders.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308AFF1EE50EB000F407D4 /* FPIFolders.m */; };
+		BA308B031EE52E4300F407D4 /* FPIAlarm.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308B021EE52E4300F407D4 /* FPIAlarm.m */; };
+		BA64F0371EF866C90037EB68 /* FPIMemory.m in Sources */ = {isa = PBXBuildFile; fileRef = BA64F0361EF866C90037EB68 /* FPIMemory.m */; };
+		BAF296071ED1FA4D009C6439 /* FrontPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BAF296061ED1FA4D009C6439 /* FrontPageViewController.m */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		BA1A2EC31EEB7371001D6BD3 /* FPIApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIApp.h; sourceTree = "<group>"; };
+		BA1A2EC41EEB7371001D6BD3 /* FPIApp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIApp.m; sourceTree = "<group>"; };
+		BA308AE31EE4A8D400F407D4 /* FPISystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPISystem.h; sourceTree = "<group>"; };
+		BA308AE41EE4A8D400F407D4 /* FPISystem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPISystem.m; sourceTree = "<group>"; };
+		BA308AE61EE4C11000F407D4 /* FPIBattery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIBattery.h; sourceTree = "<group>"; };
+		BA308AE71EE4C11000F407D4 /* FPIBattery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIBattery.m; sourceTree = "<group>"; };
+		BA308AE91EE4C5DC00F407D4 /* FPIStatusBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIStatusBar.h; sourceTree = "<group>"; };
+		BA308AEA1EE4C5DC00F407D4 /* FPIStatusBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIStatusBar.m; sourceTree = "<group>"; };
+		BA308AEC1EE4CBEF00F407D4 /* FPISwitcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPISwitcher.h; sourceTree = "<group>"; };
+		BA308AED1EE4CBEF00F407D4 /* FPISwitcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPISwitcher.m; sourceTree = "<group>"; };
+		BA308AEF1EE4D04600F407D4 /* FPIApps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIApps.h; sourceTree = "<group>"; };
+		BA308AF01EE4D04600F407D4 /* FPIApps.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIApps.m; sourceTree = "<group>"; };
+		BA308AF21EE4D54700F407D4 /* FPIMusic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIMusic.h; sourceTree = "<group>"; };
+		BA308AF31EE4D54700F407D4 /* FPIMusic.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIMusic.m; sourceTree = "<group>"; };
+		BA308AF51EE4DB0F00F407D4 /* FPIWeather.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIWeather.h; sourceTree = "<group>"; };
+		BA308AF61EE4DB0F00F407D4 /* FPIWeather.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIWeather.m; sourceTree = "<group>"; };
+		BA308AF81EE4E1C000F407D4 /* FPINotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPINotifications.h; sourceTree = "<group>"; };
+		BA308AF91EE4E1C000F407D4 /* FPINotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPINotifications.m; sourceTree = "<group>"; };
+		BA308AFC1EE5011500F407D4 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		BA308AFE1EE50EB000F407D4 /* FPIFolders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIFolders.h; sourceTree = "<group>"; };
+		BA308AFF1EE50EB000F407D4 /* FPIFolders.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIFolders.m; sourceTree = "<group>"; };
+		BA308B011EE52E4300F407D4 /* FPIAlarm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIAlarm.h; sourceTree = "<group>"; };
+		BA308B021EE52E4300F407D4 /* FPIAlarm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIAlarm.m; sourceTree = "<group>"; };
+		BA64F0351EF866C90037EB68 /* FPIMemory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIMemory.h; sourceTree = "<group>"; };
+		BA64F0361EF866C90037EB68 /* FPIMemory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIMemory.m; sourceTree = "<group>"; };
+		BA7515C71ED4A807002E48E0 /* Weather.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Weather.h; sourceTree = "<group>"; };
+		BAE31C291EDDCEBB00E3B668 /* MediaRemote.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaRemote.h; sourceTree = "<group>"; };
+		BAE31C2A1EDDF9B000E3B668 /* substrate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = substrate.h; sourceTree = "<group>"; };
 		BAF295FC1ED1F9F8009C6439 /* FrontPageViewController.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FrontPageViewController.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAF295FF1ED1F9F8009C6439 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BAF296051ED1FA4D009C6439 /* FrontPageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrontPageViewController.h; sourceTree = "<group>"; };
+		BAF296061ED1FA4D009C6439 /* FrontPageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FrontPageViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -16,17 +63,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA308AFD1EE5011500F407D4 /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BA308AFB1EE5011400F407D4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BA308AFC1EE5011500F407D4 /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		BAF295F31ED1F9F8009C6439 = {
 			isa = PBXGroup;
 			children = (
 				BAF295FE1ED1F9F8009C6439 /* FrontPageViewController */,
 				BAF295FD1ED1F9F8009C6439 /* Products */,
+				BA308AFB1EE5011400F407D4 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -42,6 +99,35 @@
 			isa = PBXGroup;
 			children = (
 				BAF295FF1ED1F9F8009C6439 /* Info.plist */,
+				BAF296051ED1FA4D009C6439 /* FrontPageViewController.h */,
+				BA7515C71ED4A807002E48E0 /* Weather.h */,
+				BAF296061ED1FA4D009C6439 /* FrontPageViewController.m */,
+				BA64F0351EF866C90037EB68 /* FPIMemory.h */,
+				BA64F0361EF866C90037EB68 /* FPIMemory.m */,
+				BA308B011EE52E4300F407D4 /* FPIAlarm.h */,
+				BA308B021EE52E4300F407D4 /* FPIAlarm.m */,
+				BA308AFE1EE50EB000F407D4 /* FPIFolders.h */,
+				BA308AFF1EE50EB000F407D4 /* FPIFolders.m */,
+				BA308AF81EE4E1C000F407D4 /* FPINotifications.h */,
+				BA308AF91EE4E1C000F407D4 /* FPINotifications.m */,
+				BA308AF51EE4DB0F00F407D4 /* FPIWeather.h */,
+				BA308AF61EE4DB0F00F407D4 /* FPIWeather.m */,
+				BA308AF21EE4D54700F407D4 /* FPIMusic.h */,
+				BA308AF31EE4D54700F407D4 /* FPIMusic.m */,
+				BA308AEF1EE4D04600F407D4 /* FPIApps.h */,
+				BA308AF01EE4D04600F407D4 /* FPIApps.m */,
+				BA1A2EC31EEB7371001D6BD3 /* FPIApp.h */,
+				BA1A2EC41EEB7371001D6BD3 /* FPIApp.m */,
+				BA308AEC1EE4CBEF00F407D4 /* FPISwitcher.h */,
+				BA308AED1EE4CBEF00F407D4 /* FPISwitcher.m */,
+				BA308AE31EE4A8D400F407D4 /* FPISystem.h */,
+				BA308AE41EE4A8D400F407D4 /* FPISystem.m */,
+				BA308AE91EE4C5DC00F407D4 /* FPIStatusBar.h */,
+				BA308AEA1EE4C5DC00F407D4 /* FPIStatusBar.m */,
+				BA308AE61EE4C11000F407D4 /* FPIBattery.h */,
+				BA308AE71EE4C11000F407D4 /* FPIBattery.m */,
+				BAE31C2A1EDDF9B000E3B668 /* substrate.h */,
+				BAE31C291EDDCEBB00E3B668 /* MediaRemote.h */,
 			);
 			path = FrontPageViewController;
 			sourceTree = "<group>";
@@ -114,6 +200,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA308AE81EE4C11000F407D4 /* FPIBattery.m in Sources */,
+				BA308B001EE50EB000F407D4 /* FPIFolders.m in Sources */,
+				BA308AF41EE4D54700F407D4 /* FPIMusic.m in Sources */,
+				BA308AEB1EE4C5DC00F407D4 /* FPIStatusBar.m in Sources */,
+				BA308AEE1EE4CBEF00F407D4 /* FPISwitcher.m in Sources */,
+				BA308AE51EE4A8D400F407D4 /* FPISystem.m in Sources */,
+				BAF296071ED1FA4D009C6439 /* FrontPageViewController.m in Sources */,
+				BA64F0371EF866C90037EB68 /* FPIMemory.m in Sources */,
+				BA308B031EE52E4300F407D4 /* FPIAlarm.m in Sources */,
+				BA308AF71EE4DB0F00F407D4 /* FPIWeather.m in Sources */,
+				BA308AFA1EE4E1C000F407D4 /* FPINotifications.m in Sources */,
+				BA308AF11EE4D04600F407D4 /* FPIApps.m in Sources */,
+				BA1A2EC51EEB7371001D6BD3 /* FPIApp.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -164,7 +263,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -205,7 +304,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				SDKROOT = macosx;
+				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};
@@ -214,11 +313,15 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = PJ68SD7J5J;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = FrontPageViewController/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.junesiphone.FrontPageViewController;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos10.3;
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = "armv7 arm64 armv7s";
 				WRAPPER_EXTENSION = bundle;
 			};
 			name = Debug;
@@ -228,11 +331,15 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = PJ68SD7J5J;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = FrontPageViewController/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.junesiphone.FrontPageViewController;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos10.3;
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = "armv7 arm64 armv7s";
 				WRAPPER_EXTENSION = bundle;
 			};
 			name = Release;
@@ -256,6 +363,7 @@
 				BAF296041ED1F9F8009C6439 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

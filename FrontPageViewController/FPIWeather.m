@@ -180,60 +180,83 @@ City * city;
 
 +(void)loadSavedCityWithObserver: (FrontPageViewController *)observer{
     
-    City *currentCity = [[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities][0];
-    CLLocation *location = [[CLLocation alloc] initWithLatitude:currentCity.latitude longitude:currentCity.longitude];
-    
-    if(deviceVersion < 10.0f){
-        [[objc_getClass("TWCLocationUpdater") sharedLocationUpdater] updateWeatherForLocation:location city:currentCity withCompletionHandler:^{
-            [self sendDataToWebWithCity: currentCity withObserver:observer];
-        }];
+    if([[[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities] count] > 0){
+        
+        City *currentCity = [[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities][0];
+        CLLocation *location = [[CLLocation alloc] initWithLatitude:currentCity.latitude longitude:currentCity.longitude];
+        
+        if(deviceVersion < 10.0f){
+            [[objc_getClass("TWCLocationUpdater") sharedLocationUpdater] updateWeatherForLocation:location city:currentCity withCompletionHandler:^{
+                [self sendDataToWebWithCity: currentCity withObserver:observer];
+            }];
+        }else{
+            [[objc_getClass("TWCLocationUpdater") sharedLocationUpdater] _updateWeatherForLocation:location city:currentCity completionHandler:^{
+                [self sendDataToWebWithCity: currentCity withObserver:observer];
+            }];
+        }
     }else{
-        [[objc_getClass("TWCLocationUpdater") sharedLocationUpdater] _updateWeatherForLocation:location city:currentCity completionHandler:^{
-            [self sendDataToWebWithCity: currentCity withObserver:observer];
-        }];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Weather Info"
+                                                        message:@"You do not have a location set in the weather app. Please set one."
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
     }
     
 }
 
 +(void)loadLocalCityWithObserver: (FrontPageViewController *)observer{
     
-    City *city = [[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities][0];
-    if(city.name != NULL){
-        [self sendDataToWebWithCity:city withObserver:observer]; //if does exist send to webview
-    }
-    
-    WeatherLocationManager* WLM = [objc_getClass("WeatherLocationManager")sharedWeatherLocationManager];
-    TWCLocationUpdater *TWCLU = [objc_getClass("TWCLocationUpdater") sharedLocationUpdater];
-    CLLocationManager *CLM = [[CLLocationManager alloc] init];
-    CLM.delegate = observer;
-    [WLM setDelegate:CLM];
-    
-    if(deviceVersion > 8.3f){
-        [WLM setLocationTrackingReady:YES activelyTracking:NO watchKitExtension:NO];
-    }
-    
-    //[WLM setLocationTrackingReady:YES activelyTracking:NO watchKitExtension:NO];
-    [WLM setLocationTrackingActive:YES];
-    [[objc_getClass("WeatherPreferences") sharedPreferences] setLocalWeatherEnabled:YES];
-    
-    if(deviceVersion < 10.0f){
-        [TWCLU updateWeatherForLocation:[WLM location] city:city];
-        dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 2);
-        dispatch_after(delay, dispatch_get_main_queue(), ^(void){
-            [self sendDataToWebWithCity: city withObserver:observer];
-        });
+    if([[[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities] count] > 0){
         
+        City *city = [[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities][0];
+        if(city.name != NULL){
+            [self sendDataToWebWithCity:city withObserver:observer]; //if does exist send to webview
+        }
+        
+        WeatherLocationManager* WLM = [objc_getClass("WeatherLocationManager")sharedWeatherLocationManager];
+        TWCLocationUpdater *TWCLU = [objc_getClass("TWCLocationUpdater") sharedLocationUpdater];
+        CLLocationManager *CLM = [[CLLocationManager alloc] init];
+        CLM.delegate = observer;
+        [WLM setDelegate:CLM];
+        
+        if(deviceVersion > 8.3f){
+            [WLM setLocationTrackingReady:YES activelyTracking:NO watchKitExtension:NO];
+        }
+        
+        //[WLM setLocationTrackingReady:YES activelyTracking:NO watchKitExtension:NO];
+        [WLM setLocationTrackingActive:YES];
+        [[objc_getClass("WeatherPreferences") sharedPreferences] setLocalWeatherEnabled:YES];
+        
+        if(deviceVersion < 10.0f){
+            [TWCLU updateWeatherForLocation:[WLM location] city:city];
+            dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 2);
+            dispatch_after(delay, dispatch_get_main_queue(), ^(void){
+                [self sendDataToWebWithCity: city withObserver:observer];
+            });
+            
+        }else{
+            [TWCLU _updateWeatherForLocation:[WLM location] city:city completionHandler:^{
+                [self sendDataToWebWithCity: city withObserver:observer];
+            }];
+        }
+        CLM = nil;
+    
     }else{
-        [TWCLU _updateWeatherForLocation:[WLM location] city:city completionHandler:^{
-            [self sendDataToWebWithCity: city withObserver:observer];
-        }];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Weather Info"
+                                                        message:@"You do not have a location set in the weather app. Please set one."
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+
     }
-    CLM = nil;
+    
 }
 
 
 
-/* startWeather 
+/* startWeather
  
     is called by FrontPageViewController on a 10 minute interval (or manually by user)
     check to see if locationServices is on or off.

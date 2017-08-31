@@ -40,47 +40,29 @@
 @implementation FPIApp
 
 +(id)getBadgeForBundleID:(NSString *)bundleID{
-    @try {
-        SBIconController *IC = [objc_getClass("SBIconController") sharedInstance];
-        SBIconModel *IM = [IC model];
-        return [IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundleID]] valueForKey:@"badgeValue"];
-    } @catch (NSException *exception) {
-        return 0;
-    }
+    SBIconController *IC = [objc_getClass("SBIconController") sharedInstance];
+    SBIconModel *IM = [IC model];
+    return [IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundleID]] valueForKey:@"badgeValue"];
 }
 
-+(void)updateAppWithObserver:(FrontPageViewController *)observer{
-    @try {
++(NSString *)appInfo{
+    NSString* combined = nil;
         if([objc_getClass("SBApplicationController") lastBundleName]){
             NSDictionary *app = [objc_getClass("SBApplicationController") lastBundleName];
             NSString *bundle = [app valueForKey:@"bundle"];
             NSString *value = [app valueForKey:@"value"];
-        
-            [observer callJSFunction:[NSString stringWithFormat:@"FPI.bundle['%@'].badge = %@;",bundle, value]];
-            [observer callJSFunction:[NSString stringWithFormat:@"badgeUpdated('%@')", bundle]];
+            combined = [NSString stringWithFormat:@"FPI.bundle['%@'].badge = %@;",bundle, value];
         }
-    } @catch (NSException *exception) {
-        NSLog(@"FrontPage Bundle Load %@", exception);
+    return combined;
+}
+
++(NSString*)singleApp{
+    NSString* string = nil;
+    if([objc_getClass("SBApplicationController") lastBundleName]){
+        NSDictionary *app = [objc_getClass("SBApplicationController") lastBundleName];
+        NSString *bundle = [app valueForKey:@"bundle"];
+        string = [NSString stringWithFormat:@"badgeUpdated('%@')", bundle];
     }
+    return string;
 }
-
-void newAppUpdated (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        dispatch_sync(dispatch_get_main_queue(), ^{
-             [FPIApp updateAppWithObserver:observer];
-        });
-    });
-}
-
-+(void)setupNotificationSystem: (FrontPageViewController *) observer{
-    
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
-                                    (__bridge const void *)(observer),
-                                    (CFNotificationCallback)newAppUpdated,
-                                    CFSTR("com.junesiphone.frontpage.app"),
-                                    NULL,
-                                    CFNotificationSuspensionBehaviorDeliverImmediately
-                                    );
-}
-
 @end

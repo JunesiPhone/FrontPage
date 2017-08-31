@@ -7,11 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FrontPageViewController.h"
+#import <UIKit/UIKit.h>
 
 @interface FPISwitcher : NSObject
-
-+(void)setupNotificationSystem:(id)observer;
-+(void)updateSwitcherWithObserver:(FrontPageViewController *)observer;
-
++(NSMutableDictionary *) switcherInfo;
 @end

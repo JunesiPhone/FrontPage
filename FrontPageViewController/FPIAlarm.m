@@ -32,13 +32,11 @@
 #define deviceVersion [[[UIDevice currentDevice] systemVersion] floatValue]
 
 
-+(void)updateAlarmWithObserver:(FrontPageViewController *)observer{
-    [observer setAlarmPending:NO];
++(NSMutableDictionary *)alarmInfo{
     NSString *formatStringForHours = [NSDateFormatter dateFormatFromTemplate:@"j" options:0 locale:[NSLocale currentLocale]];
     NSRange containsA = [formatStringForHours rangeOfString:@"a"];
     BOOL hasAMPM = containsA.location != NSNotFound;
     
-    @try {
         NSMutableDictionary *alarmInfo = [[NSMutableDictionary alloc] init];
         NSMutableDictionary *finalAlarmInfo =[[NSMutableDictionary alloc] init];
         NSMutableArray *alarmArray = [[NSMutableArray alloc] init];
@@ -98,49 +96,6 @@
         }
         
         [finalAlarmInfo setValue:alarmArray forKey:@"allalarms"];
-        [observer convertDictToJSON:finalAlarmInfo withName:@"alarm"];
-        [observer callJSFunction:@"loadAlarms()"];
-        
-    } @catch (NSException *exception) {
-        NSLog(@"FPIAlarm: error on updateAlarmWithObserver %@", exception);
-    }
-    
-}
-
-void updatingAlarm (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
-    [observer checkIfAppIsCovering];
-    BOOL isAlive = [observer canReloadData];
-    BOOL isInApp = [observer checkisInApp];
-
-    if(isAlive && !isInApp){
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 1);
-            dispatch_after(delay, dispatch_get_main_queue(), ^(void){
-                [FPIAlarm updateAlarmWithObserver:observer];
-                [observer setAlarmPending:NO];
-            });
-        });
-    }else{
-        if(isInApp){
-            [observer setAlarmPending:YES];
-        }
-    }
-    [observer checkPendingNotifications];
-}
-
-+(void)loadAlarmsWithObserver: (FrontPageViewController *) observer{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            [FPIAlarm updateAlarmWithObserver:observer];
-        });
-    });
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
-                                    (__bridge const void *)(observer),
-                                    (CFNotificationCallback)updatingAlarm,
-                                    CFSTR("com.junesiphone.frontpage.updatingalarm"),
-                                    NULL,
-                                    CFNotificationSuspensionBehaviorDeliverImmediately
-                                    );
-    
+        return finalAlarmInfo;
 }
 @end

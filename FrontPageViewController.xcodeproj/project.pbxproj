@@ -50,6 +50,7 @@
 		BA64F0351EF866C90037EB68 /* FPIMemory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIMemory.h; sourceTree = "<group>"; };
 		BA64F0361EF866C90037EB68 /* FPIMemory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIMemory.m; sourceTree = "<group>"; };
 		BA7515C71ED4A807002E48E0 /* Weather.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Weather.h; sourceTree = "<group>"; };
+		BAADCCBF1F508A9A00745393 /* Headers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Headers.h; sourceTree = "<group>"; };
 		BAE31C291EDDCEBB00E3B668 /* MediaRemote.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaRemote.h; sourceTree = "<group>"; };
 		BAE31C2A1EDDF9B000E3B668 /* substrate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = substrate.h; sourceTree = "<group>"; };
 		BAF295FC1ED1F9F8009C6439 /* FrontPageViewController.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FrontPageViewController.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,6 +103,7 @@
 				BAF296051ED1FA4D009C6439 /* FrontPageViewController.h */,
 				BA7515C71ED4A807002E48E0 /* Weather.h */,
 				BAF296061ED1FA4D009C6439 /* FrontPageViewController.m */,
+				BAADCCBF1F508A9A00745393 /* Headers.h */,
 				BA64F0351EF866C90037EB68 /* FPIMemory.h */,
 				BA64F0361EF866C90037EB68 /* FPIMemory.m */,
 				BA308B011EE52E4300F407D4 /* FPIAlarm.h */,

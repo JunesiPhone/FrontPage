@@ -5,18 +5,11 @@
 //  Created by Edward Winget on 6/4/17.
 //  Copyright © 2017 junesiphone. All rights reserved.
 //
-
 #import "FPISystem.h"
 #import <sys/utsname.h>
-
-
-@interface FPISystem ()
-
-@end
-
+#import <EventKit/EventKit.h>
 
 @implementation FPISystem
-
 
 + (NSString*) deviceName{
     struct utsname systemInfo;
@@ -95,7 +88,7 @@
 }
 
 +(id)getDeviceInfo:(int) info{
-    @try {
+        
         UIDevice *currentDevice = [UIDevice currentDevice];
         switch (info) {
             case 0:
@@ -106,14 +99,26 @@
                 break;
         }
         return 0;
-    } @catch (NSException *exception) {
-        return 0;
-    }
 }
 
++(NSString *)addBackslashes:(NSString *)string {
+    /*
+     
+     Escape characters so we can pass a string via stringByEvaluatingJavaScriptFromString
+     
+     */
+    
+    // Escape the characters
+    string = [string stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"];
+    string = [string stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
+    string = [string stringByReplacingOccurrencesOfString:@"\'" withString:@"\\\'"];
+    string = [string stringByReplacingOccurrencesOfString:@"\n" withString:@"\\n"];
+    string = [string stringByReplacingOccurrencesOfString:@"\r" withString:@"\\r"];
+    string = [string stringByReplacingOccurrencesOfString:@"\f" withString:@"\\f"];
+    return string;
+}
 
-+(void)updateSystemWithObserver:(FrontPageViewController *)observer{
-    NSDate *timeMethod = [NSDate date];
++(NSDictionary *)systemInfo{
     NSMutableDictionary *systemInfo =[[NSMutableDictionary alloc] init];
     NSString *formatStringForHours = [NSDateFormatter dateFormatFromTemplate:@"j" options:0 locale:[NSLocale currentLocale]];
     NSRange containsA = [formatStringForHours rangeOfString:@"a"];
@@ -155,6 +160,49 @@
     float totalGB = totalsizeGb + totalsizeGb2;
     float freeGB = freesizeGb + freesizeGb2;
     
+    EKEventStore *store;
+    
+    if(!store){
+        store = [[EKEventStore alloc] init];
+    }
+    
+    NSDate *start = [NSDate date];
+    NSDate *end = [NSDate dateWithTimeInterval:25920000 sinceDate:start];
+    
+
+    NSPredicate* predicate = [store predicateForEventsWithStartDate:start endDate:end calendars:nil];
+    NSArray *events = [store eventsMatchingPredicate:predicate];
+   
+    NSMutableDictionary *dateDict;
+    NSMutableArray *dateDictArray = [[NSMutableArray alloc] init];
+    NSString *dupeCatch;
+    
+    for (EKEvent *object in events) {
+        NSString* info = [NSString stringWithFormat:@"%@", object.title];
+        NSCharacterSet *cs = [NSCharacterSet characterSetWithCharactersInString:@"!~`@#$%^&*-+();:=_{}[],.<>?\\/|\"\'"];
+        
+        NSString *filtered = [[info componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+        NSMutableString *finalString = [NSMutableString stringWithString:filtered];
+        [finalString replaceOccurrencesOfString:@"gmail" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [finalString length])];
+        [finalString replaceOccurrencesOfString:@"coms" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [finalString length])];
+        [finalString replaceOccurrencesOfString:@"yahoo" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [finalString length])];
+        [finalString replaceOccurrencesOfString:@"couk" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [finalString length])];
+        filtered = [NSString stringWithString:finalString];
+        
+        if (!([dupeCatch rangeOfString:filtered].location == NSNotFound)) {
+            dateDict = [[NSMutableDictionary alloc]init];
+            NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+            [dateFormat setDateFormat:@"MM-dd-YYYY"];
+            NSString* date = [dateFormat stringFromDate:object.startDate];
+            [dateDict setValue:[self addBackslashes:date] forKey:@"date"];
+            
+            [dateDict setValue:filtered forKey:@"title"];
+            [dateDictArray addObject:dateDict];
+        }
+        dupeCatch = [NSString stringWithFormat:@"%@", filtered];
+    }
+
+
     
     [systemInfo setValue:twentyFour forKey:@"twentyfour"];
     [systemInfo setValue:freakinName forKey:@"deviceName"];
@@ -166,61 +214,13 @@
     [systemInfo setValue:deviceType forKey:@"deviceType"];
     [systemInfo setValue:freakinName forKey:@"name"];
     [systemInfo setValue:model forKey:@"model"];
+    [systemInfo setValue:dateDictArray forKey:@"events"];
     [systemInfo setValue:[NSNumber numberWithFloat:totalsizeGb] forKey:@"rootStorage"];
     [systemInfo setValue:[NSNumber numberWithFloat:freesizeGb] forKey:@"rootfreeStorage"];
     [systemInfo setValue:[NSNumber numberWithFloat:totalsizeGb2] forKey:@"mobileStorage"];
     [systemInfo setValue:[NSNumber numberWithFloat:freesizeGb2] forKey:@"mobilefreeStorage"];
     [systemInfo setValue:[NSNumber numberWithFloat:totalGB] forKey:@"totalStorage"];
     [systemInfo setValue:[NSNumber numberWithFloat:freeGB] forKey:@"freeStorage"];
-    
-    [observer convertDictToJSON:systemInfo withName:@"system"];
-    [observer callJSFunction:@"loadSystem()"];
-    systemInfo = nil;
-    
-    NSDate *methodFinish = [NSDate date];
-    NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:timeMethod];
-    NSLog(@"FrontPage - System executionTime = %f", executionTime);
+    return systemInfo;
 }
-
-void updatingBatteryandSystem (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
-    
-    [observer checkIfAppIsCovering];
-    
-    BOOL isAlive = [observer canReloadData];
-    BOOL isInApp = [observer checkisInApp];
-    
-    if(isAlive && !isInApp){
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 1);
-            dispatch_after(delay, dispatch_get_main_queue(), ^(void){
-                [FPISystem updateSystemWithObserver:observer];
-                [observer setSystemPending:NO];
-            });
-        });
-    }else{
-        if(isInApp){
-            [observer setSystemPending:YES];
-        }
-    }
-    [observer checkPendingNotifications];
-}
-
-+(void)setupNotificationSystem: (FrontPageViewController *) observer{
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        dispatch_sync(dispatch_get_main_queue(), ^{
-           [FPISystem updateSystemWithObserver:observer];
-        });
-    });
-    
-    //schedule for notifications
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
-                                    (__bridge const void *)(observer),
-                                    (CFNotificationCallback)updatingBatteryandSystem,
-                                    CFSTR("com.junesiphone.frontpage.updatingsystem"),
-                                    NULL,
-                                    CFNotificationSuspensionBehaviorDeliverImmediately
-                                    );
-}
-
 @end

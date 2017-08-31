@@ -6,10 +6,10 @@
 //  Copyright © 2017 junesiphone. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "FrontPageViewController.h"
 
 @interface FPIApp : NSObject
-+(void)setupNotificationSystem:(id)observer;
-+(void)updateAppWithObserver:(FrontPageViewController *)observer;
++(NSString *) appInfo;
++(NSString *) singleApp;
 @end

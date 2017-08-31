@@ -13,11 +13,10 @@
 +(void)startWeather: (FrontPageViewController *)observer;
 
 
-+(int)getIntFromWFTemp: (id) temp withCity: (id)city;
+
 +(NSString*)nameForCondition:(int)condition;
 +(int)currentCondition;
 +(void) sendDataToWebWithCity: (id)city withObserver: (FrontPageViewController *) observer;
 +(void)loadSavedCityWithObserver: (FrontPageViewController *)observer;
 +(void)loadLocalCityWithObserver: (FrontPageViewController *)observer;
-
 @end

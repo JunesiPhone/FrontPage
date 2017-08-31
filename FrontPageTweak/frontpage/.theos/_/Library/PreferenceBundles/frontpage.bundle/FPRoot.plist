@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Enable Front Page</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>com.junesiphone.frontpage</string>
+			<key>key</key>
+			<string>enabled</string>
+			<key>default</key>
+			<false/>
+			<key>label</key>
+			<string>Enabled</string>
+			<key>PostNotification</key>
+			<string>com.junesiphone.frontpage/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Must be on top to show menu</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>com.junesiphone.frontpage</string>
+			<key>key</key>
+			<string>top</string>
+			<key>default</key>
+			<false/>
+			<key>label</key>
+			<string>Top of icons</string>
+			<key>PostNotification</key>
+			<string>com.junesiphone.frontpage/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Disable/Enable StatusBar</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.junesiphone.frontpage</string>
+			<key>key</key>
+			<string>ALLStat</string>
+			<key>label</key>
+			<string>Hide LS and SB</string>
+			<key>PostNotification</key>
+			<string>com.junesiphone.frontpage/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.junesiphone.frontpage</string>
+			<key>key</key>
+			<string>SBStat</string>
+			<key>label</key>
+			<string>Hide SpringBoard Statusbar</string>
+			<key>PostNotification</key>
+			<string>com.junesiphone.frontpage/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.junesiphone.frontpage</string>
+			<key>key</key>
+			<string>LSStat</string>
+			<key>label</key>
+			<string>Hide LockScreen Statusbar</string>
+			<key>PostNotification</key>
+			<string>com.junesiphone.frontpage/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Dock and page dots hide when top of icons is enabled. If it is not enabled and you still want to hide them do so below.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.junesiphone.frontpage</string>
+			<key>key</key>
+			<string>forcedock</string>
+			<key>label</key>
+			<string>Hide Dock</string>
+			<key>PostNotification</key>
+			<string>com.junesiphone.frontpage/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.junesiphone.frontpage</string>
+			<key>key</key>
+			<string>forcepagedots</string>
+			<key>label</key>
+			<string>Hide Page Dots</string>
+			<key>PostNotification</key>
+			<string>com.junesiphone.frontpage/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Show FrontPage menu to select themes</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>menu</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>ShowMenu</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>respring</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Respring</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>FrontPage</string>
+</dict>
+</plist>

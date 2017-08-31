@@ -1,0 +1,10 @@
+Package: com.junesiphone.frontpage
+Name: frontpage
+Depends: mobilesubstrate
+Architecture: iphoneos-arm
+Description: An awesome MobileSubstrate tweak!
+Maintainer: Edward Winget
+Author: Edward Winget
+Section: Tweaks
+Version: 0.0.1-1885+debug
+Installed-Size: 376

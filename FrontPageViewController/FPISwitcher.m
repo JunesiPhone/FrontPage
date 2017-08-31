@@ -32,8 +32,9 @@
 - (_Bool)isSpringBoard;
 - (id)_appInfo;
 -(int)dataUsage;
+- (id)applicationWithBundleIdentifier:(id)arg1;
+- (void)uninstallApplication:(id)arg1;
 @end
-
 
 @interface SBApplicationController : NSObject
 + (id)sharedInstance;
@@ -46,8 +47,7 @@
 
 #define deviceVersion [[[UIDevice currentDevice] systemVersion] floatValue]
 
-+(void)updateSwitcherWithObserver:(FrontPageViewController *)observer{
-    NSDate *timeMethod = [NSDate date];
++(NSMutableDictionary *)switcherInfo{
     NSMutableDictionary *switcherInfo = [[NSMutableDictionary alloc] init];
     NSMutableArray *switcherArray = [[NSMutableArray alloc] init];
     
@@ -76,56 +76,8 @@
     }
     
     [switcherInfo setValue:switcherArray forKey:@"bundles"];
-    [observer convertDictToJSON:switcherInfo withName:@"switcher"];
-    [observer callJSFunction:@"loadSwitcher()"];
-    switcherInfo = nil;
     switcherArray = nil;
     switcherApps = nil;
-    
-    NSDate *methodFinish = [NSDate date];
-    NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:timeMethod];
-    NSLog(@"FrontPage - Switcher executionTime = %f", executionTime);
-}
-
-void updatingSwitcher (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
-    
-    [observer checkIfAppIsCovering];
-    
-    BOOL isAlive = [observer canReloadData];
-    BOOL isInApp = [observer checkisInApp];
-    
-    if(isAlive && !isInApp){
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 1);
-            dispatch_after(delay, dispatch_get_main_queue(), ^(void){
-                [FPISwitcher updateSwitcherWithObserver:observer];
-                [observer setSwitcherPending:NO];
-            });
-        });
-    }else{
-        if(isInApp){
-            [observer setSwitcherPending:YES];
-        }
-    }
-    [observer checkPendingNotifications];
-}
-
-+(void)setupNotificationSystem: (FrontPageViewController *) observer{
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            [FPISwitcher updateSwitcherWithObserver:observer];
-        });
-    });
-
-    
-    //schedule for notifications
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
-                                    (__bridge const void *)(observer),
-                                    (CFNotificationCallback)updatingSwitcher,
-                                    CFSTR("com.junesiphone.frontpage.updatingswitcher"),
-                                    NULL,
-                                    CFNotificationSuspensionBehaviorDeliverImmediately
-                                    );
+    return switcherInfo;
 }
 @end

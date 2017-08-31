@@ -7,73 +7,65 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <EventKit/EventKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import <WebKit/WebKit.h>
+//#import "FPVC+WKWebview.h"
+//#import "FPVC+Pending.h"
 
-
-
-@interface FrontPageViewController : UIViewController <UIWebViewDelegate, UIGestureRecognizerDelegate, UICollectionViewDataSource,UICollectionViewDelegateFlowLayout, UIAlertViewDelegate, CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>{
-    UIWebView *_themeView;
+@interface FrontPageViewController : UIViewController <UIWebViewDelegate, UIGestureRecognizerDelegate, UICollectionViewDataSource,UICollectionViewDelegateFlowLayout, UIAlertViewDelegate, CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate,WKNavigationDelegate, WKScriptMessageHandler, WKUIDelegate>{
+    WKWebView *_themeView;
     UIView *_themeSetupView;
+    UIView *_mainView;
+    UIView *_loadingView;
+    UILabel *infoLabel;
     UICollectionView *_collectionView;
     NSMutableArray *_themeArray;
     NSMutableDictionary *_frontPageSettings;
-    
+    NSMutableDictionary *_frontPageThemeSettings;
     NSString *_plistPath;
     int notifyToken;
-    BOOL isVisible;
-    BOOL isInApp;
     BOOL themeSelected;
-    
-    
-    
- 
-    
-}
--(void)setStatusBarPending:(BOOL)pending;
--(void)setBatteryPending:(BOOL)pending;
--(BOOL)getStatusBarPending;
--(BOOL)getBatteryPending;
--(BOOL)getSystemPending;
--(void)setSystemPending:(BOOL)pending;
--(BOOL)getSwitcherPending;
--(void)setSwitcherPending:(BOOL)pending;
--(BOOL)getAppsPending;
--(void)setAppsPending:(BOOL)pending;
--(BOOL)getMusicPending;
--(void)setMusicPending:(BOOL)pending;
--(BOOL)getNotificationsPending;
--(void)setNotificationsPending:(BOOL)pending;
--(BOOL)getAlarmPending;
--(void)setAlarmPending:(BOOL)pending;
+    BOOL webViewFullyLoaded;
 
+
+}
+
+@property(strong,nonatomic) WKWebView *WKthemeView;
+@property(strong,nonatomic) UIView *mainView;
+@property (nonatomic, getter=isDockHiding) BOOL hideDock;
+@property (nonatomic, getter=isDotsHiding) BOOL hideDots;
+@property (nonatomic, getter=isIconsHiding) BOOL hideIcons;
+@property (nonatomic, getter=isIconLock) BOOL iconLock;
+@property (nonatomic, getter=isThemeSpringBoard) BOOL isThemeSpringBoard;
+@property (nonatomic, getter=isInTerminalCheck) BOOL isInTerminalCheck;
+@property (nonatomic, getter=isSystemPending) BOOL systemPending;
+@property (nonatomic, getter=isBatteryPending) BOOL batteryPending;
+@property (nonatomic, getter=isStatusBarPending) BOOL statusBarPending;
+@property (nonatomic, getter=isSwitcherPending) BOOL switcherPending;
+@property (nonatomic, getter=isAppPending) BOOL appPending;
+@property (nonatomic, getter=isAppsPending) BOOL appsPending;
+@property (nonatomic, getter=isMusicPending) BOOL musicPending;
+@property (nonatomic, getter=isWeatherPending) BOOL weatherPending;
+@property (nonatomic, getter=isNotificationsPending) BOOL notificationsPending;
+@property (nonatomic, getter=isFoldersPending) BOOL foldersPending;
+@property (nonatomic, getter=isAlarmsPending) BOOL alarmsPending;
+@property (nonatomic, getter=isMemoryPending) BOOL memoryPending;
+@property (nonatomic, getter=isScreenOn) BOOL screenIsOn;
+@property (nonatomic, getter=isScreenInApp) BOOL screenIsInApp;
+
+
++ (instancetype)sharedInstance;
 -(void)checkPendingNotifications;
--(void)checkIfAppIsCovering;
--(BOOL)canReloadData;
--(BOOL)checkisInApp;
+-(bool)checkIfInApp;
+-(void)setStatusbarLastCalled:(int)second;
+-(int)returnStatusbarLastCalled;
+-(void)setSwitcherLastCalled:(int)second;
+-(int)returnSwitcherLastCalled;
+-(void)startEverything;
 -(void)convertDictToJSON:(NSDictionary *) dict withName:(NSString *) name;
 -(void)callJSFunction: (NSString *)function;
 @end
 
-@interface BBServer
-+(instancetype)frontpage_sharedInstance;
-+(id)frontpage_ids;
-- (void)publishBulletin:(id)arg1 destinations:(unsigned long long)arg2 alwaysToLockScreen:(_Bool)arg3;
-- (id)_allBulletinsForSectionID:(id)arg1;
 
-- (id)allBulletinIDsForSectionID:(id)arg1;
-- (id)noticesBulletinIDsForSectionID:(id)arg1;
-- (id)bulletinIDsForSectionID:(id)arg1 inFeed:(unsigned long long)arg2;
-@end
-
-
-
-@interface BBBulletin : NSObject
-@property(copy) NSString *sectionID;
-@property(copy) NSString *bulletinID;
-@property(copy) NSDictionary *context;
-@property(copy) NSString *section;
-@property(copy) NSString *message;
-@property(copy) NSString *subtitle;
-@property(copy) NSString *title;
-@end
 

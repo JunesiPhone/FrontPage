@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "FrontPageViewController.h"
+
 
 @interface FPIMemory : NSObject
-+(void)loadMemoryWithObserver: (FrontPageViewController *) observer;
-+(void)updateMemoryWithObserver:(FrontPageViewController *)observer;
++(NSMutableDictionary*)memoryInfo;
 @end

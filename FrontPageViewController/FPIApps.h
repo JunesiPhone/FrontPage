@@ -7,9 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FrontPageViewController.h"
+#import <UIKit/UIKit.h>
+
 
 @interface FPIApps : NSObject
-+(void)setupNotificationSystem:(id)observer;
-+(void)updateAppsWithObserver:(FrontPageViewController *)observer;
+
++(void)saveAllIconImagesWithObserver: (id)observer;
++(NSMutableArray *) appsInfo;
 @end
+

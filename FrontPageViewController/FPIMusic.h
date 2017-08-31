@@ -7,9 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FrontPageViewController.h"
+#import <UIKit/UIKit.h>
 
 @interface FPIMusic : NSObject
-+(void)setupNotificationSystem:(id)observer;
-+(void)updateMusicWithObserver:(FrontPageViewController *)observer;
++(NSMutableDictionary *) musicInfo;
 @end

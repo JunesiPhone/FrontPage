@@ -7,10 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FrontPageViewController.h"
 
 @interface FPINotifications : NSObject
 
-+(void)setupNotificationSystem:(id)observer;
-+(void)updateNotificationsWithObserver:(FrontPageViewController *)observer;
++(NSMutableDictionary *) notificationInfo;
 @end

@@ -14,24 +14,14 @@
 
 @implementation FPIFolders
 
-+(void)loadFoldersWithObserver: (FrontPageViewController *) observer{
++(NSDictionary *)injectFolders{
     NSDictionary * dict = [NSDictionary dictionaryWithContentsOfFile: @"/var/mobile/Library/SpringBoard/IconSupportState.plist"];
-    
-    if(dict){
-        [observer convertDictToJSON:dict withName:@"folderplist"];
-        dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.4);
-        dispatch_after(delay, dispatch_get_main_queue(), ^(void){
-            [observer callJSFunction:@"loadFolders()"];
-        });
-    }else{
+    if(!dict){
         dict = [NSDictionary dictionaryWithContentsOfFile: @"/var/mobile/Library/SpringBoard/IconState.plist"];
-        if(dict){
-            [observer convertDictToJSON:dict withName:@"folderplist"];
-            dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.4);
-            dispatch_after(delay, dispatch_get_main_queue(), ^(void){
-                [observer callJSFunction:@"loadFolders()"];
-            });
+        if(!dict){
+            dict = [NSDictionary dictionary];
         }
     }
+    return dict;
 }
 @end

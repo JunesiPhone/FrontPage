@@ -43,6 +43,16 @@ City * city;
     }
 }
 
++(int)getIntFromTemp:(id)tempID{
+    NSString *tempInt =  [NSString stringWithFormat:@"%@", tempID];
+    int temp = (int)[tempInt integerValue];
+
+    if (![[objc_getClass("WeatherPreferences") sharedPreferences] isCelsius]){
+        temp = ((temp * 9)/5) + 32;
+    }
+    return temp;
+}
+
 //InfoStats
 //https://github.com/Matchstic/InfoStats2/blob/master/InfoStats2/IS2WeatherProvider.m
 
@@ -92,10 +102,19 @@ City * city;
             int temp;
             int feelslike;
             
-            low = [self getIntFromWFTemp:[days valueForKey:@"low"] withCity:city];
-            high = [self getIntFromWFTemp:[days valueForKey:@"high"]withCity:city];
-            temp = [self getIntFromWFTemp:[city valueForKey:@"temperature"]withCity:city];
-            feelslike = [self getIntFromWFTemp:[city valueForKey:@"feelsLike"]withCity:city];
+            if(deviceVersion >= 10.0f){
+                low = [self getIntFromWFTemp:[days valueForKey:@"low"] withCity:city];
+                high = [self getIntFromWFTemp:[days valueForKey:@"high"]withCity:city];
+                temp = [self getIntFromWFTemp:[city valueForKey:@"temperature"]withCity:city];
+                feelslike = [self getIntFromWFTemp:[city valueForKey:@"feelsLike"]withCity:city];
+            }else{
+                low = [self getIntFromTemp:[days valueForKey:@"low"]];
+                high = [self getIntFromTemp:[days valueForKey:@"high"]];
+                temp = [self getIntFromTemp:[city valueForKey:@"temperature"]];
+                feelslike = [self getIntFromTemp:[city valueForKey:@"feelsLike"]];
+            }
+            
+            
             
             NSMutableDictionary *dayForecasts;
             NSMutableArray *fcastArray = [[NSMutableArray alloc] init];
@@ -105,8 +124,13 @@ City * city;
                 int lowForcast;
                 int highForecast;
                 
-                lowForcast = [self getIntFromWFTemp:[day valueForKey:@"low"]withCity:city];
-                highForecast = [self getIntFromWFTemp:[day valueForKey:@"high"]withCity:city];
+                if(deviceVersion >= 10.0f){
+                    lowForcast = [self getIntFromWFTemp:[day valueForKey:@"low"]withCity:city];
+                    highForecast = [self getIntFromWFTemp:[day valueForKey:@"high"]withCity:city];
+                }else{
+                    lowForcast = [self getIntFromTemp:[day valueForKey:@"low"]];
+                    highForecast = [self getIntFromTemp:[day valueForKey:@"high"]];
+                }
                 
                 NSString *icon = [NSString stringWithFormat:@"%llu",day.icon];
                 
@@ -116,7 +140,6 @@ City * city;
                 [dayForecasts setValue:[NSString stringWithFormat:@"%llu",day.dayNumber] forKey:@"dayNumber"];
                 [dayForecasts setValue:[NSString stringWithFormat:@"%llu",day.dayOfWeek] forKey:@"dayOfWeek"];
                 [dayForecasts setValue:icon forKey:@"icon"];
-                
                 [fcastArray addObject:dayForecasts];
                 
             }
@@ -140,6 +163,7 @@ City * city;
             [s replaceOccurrencesOfString:@"\r" withString:@"\\r" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
             [s replaceOccurrencesOfString:@"\t" withString:@"\\t" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
             naturalCondition = [NSString stringWithString:s];
+        
             
             [weatherInfo setValue:city.name forKey:@"city"];
             [weatherInfo setValue:naturalCondition forKey:@"naturalCondition"];
@@ -161,6 +185,12 @@ City * city;
             [weatherInfo setValue:[NSNumber numberWithInt:low] forKey:@"low"];
             [weatherInfo setValue:[NSNumber numberWithInt:high] forKey:@"high"];
             [weatherInfo setValue:[NSNumber numberWithBool:celsius] forKey:@"celsius"];
+            
+            if([[city hourlyForecasts] count] > 0){
+                HourlyForecast* precip = [city hourlyForecasts][0];
+                [weatherInfo setValue:[NSString stringWithFormat:@"%d", (int)roundf(precip.percentPrecipitation)] forKey:@"chanceofrain"];
+            }
+            
             [weatherInfo setValue:fcastArray forKey:@"dayForecasts"];
             
             [observer convertDictToJSON:weatherInfo withName:@"weather"];
@@ -181,10 +211,20 @@ City * city;
 +(void)loadSavedCityWithObserver: (FrontPageViewController *)observer{
     
     if([[[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities] count] > 0){
-        
+        CLLocation* location;
         City *currentCity = [[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities][0];
-        CLLocation *location = [[CLLocation alloc] initWithLatitude:currentCity.latitude longitude:currentCity.longitude];
-        
+        if(currentCity.locationID){
+            NSArray *locationArray = [currentCity.locationID componentsSeparatedByString:@","];
+            if([locationArray count] > 0){
+                double latitude = [locationArray[0] doubleValue];
+                double longitude = [locationArray[1] doubleValue];
+                location = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(latitude, longitude)
+                                               altitude:0
+                                     horizontalAccuracy:0
+                                       verticalAccuracy:0
+                                              timestamp:[NSDate date]];
+            }
+        }
         if(deviceVersion < 10.0f){
             [[objc_getClass("TWCLocationUpdater") sharedLocationUpdater] updateWeatherForLocation:location city:currentCity withCompletionHandler:^{
                 [self sendDataToWebWithCity: currentCity withObserver:observer];
@@ -195,65 +235,48 @@ City * city;
             }];
         }
     }else{
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Weather Info"
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"FrontPage Request"
                                                         message:@"You do not have a location set in the weather app. Please set one."
                                                        delegate:self
                                               cancelButtonTitle:@"OK"
                                               otherButtonTitles:nil];
         [alert show];
     }
-    
 }
 
 +(void)loadLocalCityWithObserver: (FrontPageViewController *)observer{
     
-    if([[[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities] count] > 0){
-        
-        City *city = [[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities][0];
-        if(city.name != NULL){
-            [self sendDataToWebWithCity:city withObserver:observer]; //if does exist send to webview
-        }
-        
-        WeatherLocationManager* WLM = [objc_getClass("WeatherLocationManager")sharedWeatherLocationManager];
-        TWCLocationUpdater *TWCLU = [objc_getClass("TWCLocationUpdater") sharedLocationUpdater];
+    City *currentCity = nil;
+    currentCity = [[objc_getClass("WeatherPreferences") sharedPreferences]localWeatherCity];
+    
         CLLocationManager *CLM = [[CLLocationManager alloc] init];
         CLM.delegate = observer;
-        [WLM setDelegate:CLM];
-        
-        if(deviceVersion > 8.3f){
-            [WLM setLocationTrackingReady:YES activelyTracking:NO watchKitExtension:NO];
+        WeatherLocationManager* WLM = [objc_getClass("WeatherLocationManager")sharedWeatherLocationManager];
+        if(deviceVersion >= 8.3f){
+            if([[objc_getClass("WeatherLocationManager")sharedWeatherLocationManager] respondsToSelector:@selector(setLocationTrackingReady:activelyTracking:watchKitExtension:)]){
+                    [WLM setLocationTrackingReady:YES activelyTracking:NO watchKitExtension:NO];
+            }
+
         }
-        
-        //[WLM setLocationTrackingReady:YES activelyTracking:NO watchKitExtension:NO];
         [WLM setLocationTrackingActive:YES];
         [[objc_getClass("WeatherPreferences") sharedPreferences] setLocalWeatherEnabled:YES];
         
         if(deviceVersion < 10.0f){
-            [TWCLU updateWeatherForLocation:[WLM location] city:city];
-            dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 2);
-            dispatch_after(delay, dispatch_get_main_queue(), ^(void){
-                [self sendDataToWebWithCity: city withObserver:observer];
-            });
-            
+            if([[objc_getClass("TWCLocationUpdater") sharedLocationUpdater] respondsToSelector:@selector(updateWeatherForLocation:city:withCompletionHandler:)]){
+                
+                [[objc_getClass("TWCLocationUpdater") sharedLocationUpdater] updateWeatherForLocation:[WLM location] city:currentCity withCompletionHandler:^{
+                    [self sendDataToWebWithCity: currentCity withObserver:observer];
+                }];
+                
+            }
         }else{
-            [TWCLU _updateWeatherForLocation:[WLM location] city:city completionHandler:^{
-                [self sendDataToWebWithCity: city withObserver:observer];
+            [[objc_getClass("TWCLocationUpdater") sharedLocationUpdater] _updateWeatherForLocation:[WLM location] city:currentCity completionHandler:^{
+                [self sendDataToWebWithCity: currentCity withObserver:observer];
             }];
         }
-        CLM = nil;
-    
-    }else{
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Weather Info"
-                                                        message:@"You do not have a location set in the weather app. Please set one."
-                                                       delegate:self
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        [alert show];
-
-    }
-    
+    [WLM setLocationTrackingActive:NO];
+    WLM = nil;
 }
-
 
 
 /* startWeather

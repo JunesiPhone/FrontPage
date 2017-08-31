@@ -7,11 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "FrontPageViewController.h"
+
 
 @interface FPIAlarm : NSObject
-+(void)loadAlarmsWithObserver: (FrontPageViewController *) observer;
-+(void)updateAlarmWithObserver:(FrontPageViewController *)observer;
++(NSMutableDictionary*)alarmInfo;
 @end
 
 @interface SBClockDataProvider

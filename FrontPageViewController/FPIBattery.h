@@ -7,11 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FrontPageViewController.h"
 
 @interface FPIBattery : NSObject
-
-+(void)setupNotificationSystem:(id)observer;
-+(void)updateBatteryWithObserver:(FrontPageViewController *)observer;
-
++(NSMutableDictionary *) batteryInfo;
 @end

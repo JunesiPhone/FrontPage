@@ -7,11 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FrontPageViewController.h"
+#import <UIKit/UIKit.h>
 
 @interface FPISystem : NSObject
-
-+(void)setupNotificationSystem:(id)observer;
-+(void)updateSystemWithObserver:(FrontPageViewController *)observer;
-
++(NSMutableDictionary *) systemInfo;
 @end

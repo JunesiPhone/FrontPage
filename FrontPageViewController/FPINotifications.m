@@ -14,12 +14,33 @@
 
 @end
 
+@interface BBServer
++(instancetype)frontpage_sharedInstance;
++(id)frontpage_ids;
+- (void)publishBulletin:(id)arg1 destinations:(unsigned long long)arg2 alwaysToLockScreen:(_Bool)arg3;
+- (id)_allBulletinsForSectionID:(id)arg1;
+
+- (id)allBulletinIDsForSectionID:(id)arg1;
+- (id)noticesBulletinIDsForSectionID:(id)arg1;
+- (id)bulletinIDsForSectionID:(id)arg1 inFeed:(unsigned long long)arg2;
+@end
+
+
+
+@interface BBBulletin : NSObject
+@property(copy) NSString *sectionID;
+@property(copy) NSString *bulletinID;
+@property(copy) NSDictionary *context;
+@property(copy) NSString *section;
+@property(copy) NSString *message;
+@property(copy) NSString *subtitle;
+@property(copy) NSString *title;
+@end
+
 @implementation FPINotifications
 
 
-+(void)updateNotificationsWithObserver:(FrontPageViewController *)observer{
-    NSLog(@"FrontPage - Load LoadingNotificationsCalled");
-    NSDate *timeMethod = [NSDate date];
++(NSMutableDictionary *)notificationInfo{
     
     NSMutableDictionary *notificationInfo =[[NSMutableDictionary alloc] init];
     NSMutableDictionary *bulletins = [objc_getClass("BBServer") frontpage_ids];
@@ -54,59 +75,11 @@
     }
 
     [notificationInfo setValue:notificationArray forKey:@"all"];
-    [observer convertDictToJSON:notificationInfo withName:@"notifications"];
-    [observer callJSFunction:@"loadNotifications()"];
-    notificationInfo = nil;
     bulletins = nil;
     notificationArray = nil;
     fullBulletin = nil;
     bulletInfo = nil;
-    
-    NSDate *methodFinish = [NSDate date];
-    NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:timeMethod];
-    NSLog(@"FrontPage - Notifications executionTime = %f", executionTime);
-    
-}
 
-void updatingNotifications (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
-    [observer checkIfAppIsCovering];
-    BOOL isAlive = [observer canReloadData];
-    BOOL isInApp = [observer checkisInApp];
-    NSLog(@"FrontPage - Load isInAPp %@", isInApp ? @"yes" : @"no");
-    NSLog(@"FrontPage - Load isAlive %@", isAlive ? @"yes" : @"no");
-    if(isAlive && !isInApp){
-        NSLog(@"FrontPage - Load Updated");
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 1);
-            dispatch_after(delay, dispatch_get_main_queue(), ^(void){
-                [FPINotifications updateNotificationsWithObserver:observer];
-                [observer setNotificationsPending:NO];
-            });
-        });
-    }else{
-        if(isInApp){
-            [observer setNotificationsPending:YES];
-        }
-    }
-    [observer checkPendingNotifications];
+    return notificationInfo;
 }
-
-+(void)setupNotificationSystem: (FrontPageViewController *) observer{
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        dispatch_sync(dispatch_get_main_queue(), ^{
-             [FPINotifications updateNotificationsWithObserver:observer];
-        });
-    });
-    
-    //schedule for notifications
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
-                                    (__bridge const void *)(observer),
-                                    (CFNotificationCallback)updatingNotifications,
-                                    CFSTR("com.junesiphone.frontpage.updatingnotifications"),
-                                    NULL,
-                                    CFNotificationSuspensionBehaviorDeliverImmediately
-                                    );
-}
-
 @end

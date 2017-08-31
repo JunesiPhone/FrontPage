@@ -3,6 +3,7 @@
 - (id)updateTime;
 @property(nonatomic, getter=isDataCelsius) _Bool dataCelsius;
 @property (nonatomic, copy) NSArray *dayForecasts;
+@property (nonatomic, copy) NSArray *hourlyForecasts;
 @property (readonly) NSDictionary * urlComponents;
 @property (assign,nonatomic) BOOL isLocalWeatherCity;
 @property (nonatomic,copy) NSString * woeid;
@@ -53,6 +54,11 @@
 - (unsigned int)bigIcon;
 
 @end
+
+@interface HourlyForecast : NSObject
+@property (nonatomic) float percentPrecipitation;
+- (float)percentPrecipitation;
+@end;
 
 @interface DayForecast : NSObject
 @property (nonatomic,copy) NSString * high;

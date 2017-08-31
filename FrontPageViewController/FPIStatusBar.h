@@ -7,12 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FrontPageViewController.h"
+
+
 
 @interface FPIStatusBar : NSObject
 
-+(void)setupNotificationSystem:(id)observer;
-+(void)updateStatusBarWithObserver:(FrontPageViewController *)observer;
++(NSMutableDictionary *) statusBarInfo;
 +(void)enableWifi;
 +(void)disableWifi;
 @end

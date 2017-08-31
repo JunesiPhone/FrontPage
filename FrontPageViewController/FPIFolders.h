@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "FrontPageViewController.h"
+
 
 @interface FPIFolders : NSObject
-
-+(void)loadFoldersWithObserver: (FrontPageViewController *) observer;
++(NSDictionary *)injectFolders;
 @end

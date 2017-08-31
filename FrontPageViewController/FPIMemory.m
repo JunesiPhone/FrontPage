@@ -79,27 +79,25 @@
 }
 
 
-
-+(void)updateMemoryWithObserver:(FrontPageViewController *)observer{
-    NSLog(@"FPI- LoadMemory!");
++(NSMutableDictionary *)memoryInfo{
+    //dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSMutableDictionary *memoryInfo = [[NSMutableDictionary alloc] init];
+        int free = [self ramFree];
+        int used = [self ramUsed];
+        int available = [self ramAvailable];
+        int physical = [self ramPhysical];
     
+        [memoryInfo setValue:[NSNumber numberWithInt:free] forKey:@"ramFree"];
+        [memoryInfo setValue:[NSNumber numberWithInt:used] forKey:@"ramUsed"];
+        [memoryInfo setValue:[NSNumber numberWithInt:available] forKey:@"ramAvailable"];
+        [memoryInfo setValue:[NSNumber numberWithInt:physical] forKey:@"ramPhysical"];
+    
+//        [observer convertDictToJSON:memoryInfo withName:@"memory"];
+//        [observer callJSFunction:@"loadMemory()"];
+//        memoryInfo = nil;
+    //});
+    return memoryInfo;
 }
 
-+(void)loadMemoryWithObserver: (FrontPageViewController *) observer{
-    NSMutableDictionary *memoryInfo = [[NSMutableDictionary alloc] init];
-    int free = [self ramFree];
-    int used = [self ramUsed];
-    int available = [self ramAvailable];
-    int physical = [self ramPhysical];
-    
-    [memoryInfo setValue:[NSNumber numberWithInt:free] forKey:@"ramFree"];
-    [memoryInfo setValue:[NSNumber numberWithInt:used] forKey:@"ramUsed"];
-    [memoryInfo setValue:[NSNumber numberWithInt:available] forKey:@"ramAvailable"];
-    [memoryInfo setValue:[NSNumber numberWithInt:physical] forKey:@"ramPhysical"];
-    
-    [observer convertDictToJSON:memoryInfo withName:@"memory"];
-    [observer callJSFunction:@"loadMemory()"];
-    memoryInfo = nil;
-}
 
 @end

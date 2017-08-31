@@ -9,7 +9,6 @@
 #import "FPIMusic.h"
 #import <objc/runtime.h>
 
-
 @interface SBApplication
 - (id)displayName;
 - (id)bundleIdentifier;
@@ -21,9 +20,11 @@
 - (_Bool)isSpringBoard;
 - (id)_appInfo;
 -(int)dataUsage;
+- (id)applicationWithBundleIdentifier:(id)arg1;
+- (void)uninstallApplication:(id)arg1;
 @end
 
-@interface SBMediaController : NSObject
+@interface SBMediaController
 @property(readonly, nonatomic) __weak SBApplication *nowPlayingApplication;
 + (id)sharedInstance;
 - (BOOL)stop;
@@ -34,7 +35,6 @@
 - (BOOL)isPlaying;
 - (BOOL)changeTrack:(int)arg1;
 @end
-
 
 @interface MPUNowPlayingController : NSObject
 +(double)_frontpage_elapsedTime;
@@ -52,7 +52,7 @@
 @implementation FPIMusic
 
 
-+(void)updateMusicWithObserver:(FrontPageViewController *)observer{
++(NSMutableDictionary *)musicInfo{
     
     NSMutableDictionary *musicInfo =[[NSMutableDictionary alloc] init];
 
@@ -109,53 +109,6 @@
     }
     [musicInfo setValue:[NSNumber numberWithBool:playin] forKey:@"isPlaying"];
     [musicInfo setValue:bundle forKey:@"musicBundle"];
-    [observer convertDictToJSON:musicInfo withName:@"music"];
-    [observer callJSFunction:@"loadMusic()"];
-    musicInfo = nil;
-
+    return  musicInfo;
 }
-
-void updatingMusic (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
-    
-    [observer checkIfAppIsCovering];
-    
-    BOOL isAlive = [observer canReloadData];
-    BOOL isInApp = [observer checkisInApp];
-    
-    if(isAlive && !isInApp){
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 1);
-                dispatch_after(delay, dispatch_get_main_queue(), ^(void){
-                    [FPIMusic updateMusicWithObserver:observer];
-                    [observer setMusicPending:NO];
-                });
-            });
-        });
-    }else{
-        if(isInApp){
-            [observer setMusicPending:YES];
-        }
-    }
-    [observer checkPendingNotifications];
-}
-
-+(void)setupNotificationSystem: (FrontPageViewController *) observer{
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            [FPIMusic updateMusicWithObserver:observer];
-        });
-    });
-    
-    //schedule for notifications
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
-                                    (__bridge const void *)(observer),
-                                    (CFNotificationCallback)updatingMusic,
-                                    CFSTR("com.junesiphone.frontpage.updatingmusic"),
-                                    NULL,
-                                    CFNotificationSuspensionBehaviorDeliverImmediately
-                                    );
-}
-
 @end

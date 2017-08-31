@@ -5,4 +5,4 @@ Packages/
 *.deb
 Makefile
 control
-headers.h
+Packages.bz2

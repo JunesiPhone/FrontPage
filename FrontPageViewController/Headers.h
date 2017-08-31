@@ -38,6 +38,10 @@
 @end
 
 
+@interface WKPreferences (webview)
+@property (assign,setter=_setAllowFileAccessFromFileURLs:,nonatomic) BOOL _allowFileAccessFromFileURLs; 
+@end
+
 
 @interface UIApplication (webview)
 @property (nonatomic, retain, readonly) UIApplication *_accessibilityFrontMostApplication;

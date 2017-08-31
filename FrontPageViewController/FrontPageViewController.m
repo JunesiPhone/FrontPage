@@ -42,6 +42,7 @@
 @end
 
 
+
 @implementation FrontPageViewController
 
 NSString* rotation = @"portrait";
@@ -1018,6 +1019,17 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         WKWebViewConfiguration *theConfiguration = [[WKWebViewConfiguration alloc] init];
         WKUserContentController *controller = [[WKUserContentController alloc] init];
         [controller addScriptMessageHandler:self name:@"observe"];
+        
+        WKPreferences *preferences = [[WKPreferences alloc] init];
+        [preferences setJavaScriptEnabled: YES];
+        
+        if(deviceVersion >= 9.0){
+            [preferences _setAllowFileAccessFromFileURLs:YES];
+        }
+        //figure out iOS8
+       
+        [theConfiguration setPreferences:preferences];
+        
         theConfiguration.userContentController = controller;
         _themeView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width,self.view.frame.size.height) configuration:theConfiguration];
         _themeView.navigationDelegate = self;

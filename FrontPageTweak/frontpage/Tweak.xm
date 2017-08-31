@@ -565,9 +565,6 @@ static void loadFrontPage(){
 
 -(void)frontDisplayDidChange:(id)arg1{
 	hideShowItems();
-    if(arg1 == nil){
-    	//hideShowItems();
-    }
     %orig;
 }
 

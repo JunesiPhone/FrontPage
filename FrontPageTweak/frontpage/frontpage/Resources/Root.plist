@@ -103,23 +103,9 @@
 			<key>defaults</key>
 			<string>com.junesiphone.frontpage</string>
 			<key>key</key>
-			<string>ALLStat</string>
-			<key>label</key>
-			<string>Hide LS and SB Statusbar</string>
-			<key>PostNotification</key>
-			<string>com.junesiphone.frontpage/preferences.changed</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>default</key>
-			<false/>
-			<key>defaults</key>
-			<string>com.junesiphone.frontpage</string>
-			<key>key</key>
 			<string>SBStat</string>
 			<key>label</key>
-			<string>Hide SpringBoard Statusbar</string>
+			<string>Hide SB Statusbar</string>
 			<key>PostNotification</key>
 			<string>com.junesiphone.frontpage/preferences.changed</string>
 		</dict>
@@ -133,7 +119,7 @@
 			<key>key</key>
 			<string>LSStat</string>
 			<key>label</key>
-			<string>Hide LockScreen Statusbar</string>
+			<string>Hide LS Statusbar</string>
 			<key>PostNotification</key>
 			<string>com.junesiphone.frontpage/preferences.changed</string>
 		</dict>

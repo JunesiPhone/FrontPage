@@ -156,7 +156,6 @@ static BOOL enabled = NO;
 static BOOL top = NO;
 static bool SBStat = NO;
 static bool LSStat = NO;
-static bool ALLStat = NO;
 
 static BOOL hideIcons = NO;
 static BOOL hideDock = NO;
@@ -284,9 +283,9 @@ static void hideShowItems(){
 %hook SBLockScreenManager
 	-(void)_finishUIUnlockFromSource:(int)arg1 withOptions:(id)arg2 {
 		%orig;
-		 CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.deviceunlock"), NULL, NULL, true);
-		 CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingsystem"), NULL, NULL, true);
-		//hideShowItems();
+		hideShowItems();
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.deviceunlock"), NULL, NULL, true);
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingsystem"), NULL, NULL, true);
 	}
 %end
 
@@ -302,7 +301,6 @@ static void disableFrontPage(){
 	top = 0;
 	SBStat = NO;
 	LSStat = NO;
-	ALLStat = NO;
 	hideDock = NO;
 	hideIcons = NO;
 	hideDots = NO;
@@ -310,8 +308,6 @@ static void disableFrontPage(){
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"enabled" inDomain:nsDomainString];
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"LSStat" inDomain:nsDomainString];
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"SBStat" inDomain:nsDomainString];
-	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"ALLStat" inDomain:nsDomainString];
-	//[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"dots" inDomain:nsDomainString];
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"top" inDomain:nsDomainString];
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"hideDots" inDomain:nsDomainString];
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"hideDock" inDomain:nsDomainString];
@@ -488,36 +484,45 @@ static void loadFrontPage(){
 /* End Switcher Updates */
 
 %group statusbarHider
-	%hook UIStatusBar //hide fake statusbar
+	%hook UIStatusBar
+
+		- (void)setForegroundColor:(id)arg1 animationParameters:(id)arg2{
+			id backup = arg1;
+			UIApplication *sbapp = [objc_getClass("UIApplication") sharedApplication];
+			SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
+			NSString *ckBundle = [[sbapp _accessibilityFrontMostApplication] bundleIdentifier];
+			BOOL onLS = [lsMan isUILocked];
+	        BOOL onSB = ckBundle == nil ? YES : NO;
+	        if(SBStat && onSB && !onLS){
+	        	arg1 = [UIColor clearColor];
+	        }else{
+	        	arg1 = backup;
+	        }
+			%orig;
+		}
+
 		-(void)layoutSubviews{
 			%orig;
-			if(ALLStat){
-				[self setForegroundColor:color];
-			}else{
-				UIApplication *sbapp = [objc_getClass("UIApplication") sharedApplication];
-			    if( sbapp != nil){
-				    NSString *ckBundle = [[sbapp _accessibilityFrontMostApplication] bundleIdentifier];
-				    SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
-	        		BOOL onSB = ckBundle == nil ? YES : NO;
-					BOOL onLS = [lsMan isUILocked];
-					if(onSB || onLS){
-						if(SBStat && onSB && !onLS){
+			UIApplication *sbapp = [objc_getClass("UIApplication") sharedApplication];
+		    if( sbapp != nil){
+			    NSString *ckBundle = [[sbapp _accessibilityFrontMostApplication] bundleIdentifier];
+			    SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
+        		BOOL onSB = ckBundle == nil ? YES : NO;
+				BOOL onLS = [lsMan isUILocked];
+				if(onSB || onLS){
+					if(SBStat && onSB && !onLS){
+						[self setForegroundColor:color];
+					}else{
+						if(LSStat && onLS){
 							[self setForegroundColor:color];
-						}else{
-							if(LSStat && onLS){
-								[self setForegroundColor:color];
-							}
 						}
 					}
 				}
 			}
 		}
 	%end
-	%hook UIStatusBarStyleAttributes
+	%hook UIStatusBarStyleAttributes //iOS needs this
 		- (double) foregroundAlpha{
-				if(ALLStat){
-					return 0.0;
-				}
 				if(SBStat || LSStat){
 					UIApplication *onSB = [objc_getClass("UIApplication") sharedApplication];
 					if(onSB != nil){
@@ -735,7 +740,6 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
 	NSNumber *t = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"top" inDomain:nsDomainString];
 	NSNumber *d = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"SBStat" inDomain:nsDomainString];
 	NSNumber *e = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"LSStat" inDomain:nsDomainString];
-	NSNumber *f = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"ALLStat" inDomain:nsDomainString];
   	NSNumber *c = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"iconlock" inDomain:nsDomainString];
 
   	NSNumber *dots = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"hideDots" inDomain:nsDomainString];
@@ -746,7 +750,6 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
 	top = (t)? [t boolValue]:NO;
 	SBStat = (d)? [d boolValue]:NO;
 	LSStat = (e)? [e boolValue]:NO;
-	ALLStat = (f)? [f boolValue]:NO;
 	iconlock = (c)? [c boolValue]:NO;
 
 	hideIcons = (icons) ? [icons boolValue] : NO;

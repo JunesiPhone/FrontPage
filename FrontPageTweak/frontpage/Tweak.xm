@@ -258,8 +258,15 @@ static void goShowDots(){
 
 
 static void hideShowItems(){
+	topViewSB = [[%c(SBIconController) sharedInstance] _rootFolderController].contentView;
+	for(UIView *v in topViewSB.subviews){
+	     if([v isKindOfClass:[UIView class]] && !v.hidden){
+	     	topViewSB = v;
+	     }
+	}
+		[topViewSB addSubview:insView];
 	if(!top){
-		[topViewSB sendSubviewToBack:insView];
+		 [topViewSB sendSubviewToBack:insView];
 	}else{
 		[topViewSB bringSubviewToFront:insView];
 	}

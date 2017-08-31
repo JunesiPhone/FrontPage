@@ -2,6 +2,7 @@
 #import <UIKit/UIKit.h>
 #import "substrate.h"
 
+
 @interface NSUserDefaults (FrontPage)
 - (id)objectForKey:(NSString *)key inDomain:(NSString *)domain;
 - (void)setObject:(id)value forKey:(NSString *)key inDomain:(NSString *)domain;

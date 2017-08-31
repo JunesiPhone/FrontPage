@@ -1,0 +1,8 @@
+LatestBuild/
+Packages/
+.theos
+*.dylib
+*.deb
+Makefile
+control
+headers.h

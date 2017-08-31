@@ -1025,8 +1025,8 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         _themeView.UIDelegate = self;
         _themeView.backgroundColor = [UIColor clearColor];
         _themeView.scrollView.backgroundColor = [UIColor clearColor];
-        //_themeView.scrollView.scrollEnabled = NO;
-        //_themeView.scrollView.bounces = NO;
+        _themeView.scrollView.scrollEnabled = NO;
+        _themeView.scrollView.bounces = NO;
         NSURLRequest *nsrequest=[NSURLRequest requestWithURL:nsUrl];
         [_themeView loadRequest:nsrequest];
         [self.view addSubview:_themeView];
@@ -1055,25 +1055,29 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 #pragma mark - Evaluate Script
 
 -(NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script{
-    __block NSString *resultString = nil;
-    __block BOOL finished = NO;
-    [_themeView evaluateJavaScript:script completionHandler:^(id result, NSError *error) {
-        if (error == nil) {
-            if (result != nil) {
-                resultString = [NSString stringWithFormat:@"%@", result];
-            }
-        }else{
-            NSLog(@"FrontPage Error with script: %@, %@", script, error.localizedDescription);
-        }
-        finished = YES;
-    }];
-    
-    while (!finished){
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-    }
-    return resultString;
+    NSLog(@"FrontPage Calling Script %@", script);
+    [_themeView evaluateJavaScript:script completionHandler:^(id object, NSError *error) { }];
+    return @"Done";
 }
-
+//-(NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script{
+//    __block NSString *resultString = nil;
+//    __block BOOL finished = NO;
+//    [_themeView evaluateJavaScript:script completionHandler:^(id result, NSError *error) {
+//        if (error == nil) {
+//            if (result != nil) {
+//                resultString = [NSString stringWithFormat:@"%@", result];
+//            }
+//        }else{
+//            NSLog(@"FrontPage Error with script: %@, %@", script, error.localizedDescription);
+//        }
+//        finished = YES;
+//    }];
+//    
+//    while (!finished){
+//        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+//    }
+//    return resultString;
+//}
 
 -(void)callJSFunction: (NSString *)function{
 //    if([function isEqualToString:@"loadBattery()"]){

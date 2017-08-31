@@ -252,6 +252,7 @@ City * city;
         CLLocationManager *CLM = [[CLLocationManager alloc] init];
         CLM.delegate = observer;
         WeatherLocationManager* WLM = [objc_getClass("WeatherLocationManager")sharedWeatherLocationManager];
+        WLM.delegate = observer;
         if(deviceVersion >= 8.3f){
             if([[objc_getClass("WeatherLocationManager")sharedWeatherLocationManager] respondsToSelector:@selector(setLocationTrackingReady:activelyTracking:watchKitExtension:)]){
                     [WLM setLocationTrackingReady:YES activelyTracking:NO watchKitExtension:NO];

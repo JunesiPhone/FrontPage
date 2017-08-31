@@ -785,9 +785,7 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
 	    	instance = nil;
 	        [insView removeFromSuperview];
 	    }
-	    _AXSSetReduceMotionEnabled(NO);
 	    if(applied){
-	    	//showIcons();
 	    	[[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
 	    }
 	    applied = NO;

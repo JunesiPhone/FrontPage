@@ -1000,8 +1000,8 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
                                                               completionHandler();
                                                           }]];
     
-    if (self.isViewLoaded && self.view.window) {
-        [self presentViewController:alertController animated:YES completion:nil];
+    if ([UIApplication sharedApplication].keyWindow.rootViewController.isViewLoaded && [UIApplication sharedApplication].keyWindow.rootViewController.view.window) {
+        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
     } else {
         completionHandler();
     }

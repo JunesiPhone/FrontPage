@@ -39,10 +39,24 @@
 - (id)statusBar;
 @end
 
-@interface UIStatusBar
-  -(void)setForegroundColor:(UIColor *)arg1;
+// @interface UIStatusBar
+//   -(void)setForegroundColor:(UIColor *)arg1;
+//   - (void)setHidden:(BOOL)arg1;
+// @end
+
+
+@interface UIStatusBarForegroundView : UIView
+@end
+
+@interface UIStatusBar : UIView{
+
+    UIStatusBarForegroundView *_foregroundView;
+}
+ -(void)setForegroundColor:(UIColor *)arg1;
   - (void)setHidden:(BOOL)arg1;
 @end
+
+
 
 @interface UIConcreteLocalNotification
 - (id)fireDate;
@@ -490,46 +504,60 @@ static void loadFrontPage(){
 
 /* End Switcher Updates */
 
+// static void checkStatusbar(){
+// 	UIApplication *sbapp = [objc_getClass("UIApplication") sharedApplication];
+// 			SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
+// 			NSString *ckBundle = [[sbapp _accessibilityFrontMostApplication] bundleIdentifier];
+// 			BOOL onLS = [lsMan isUILocked];
+// 	        BOOL onSB = ckBundle == nil ? YES : NO;
+// 	        if(SBStat && onSB && !onLS){
+// 	        	UIView* statusbar = [[objc_getClass("UIApplication") sharedApplication] statusBar];
+// 	        	UIStatusBarForegroundView *foregroundView = MSHookIvar<UIStatusBarForegroundView *>(statusbar, "_foregroundView");
+// 				[foregroundView setHidden:YES];
+// 				foregroundView.alpha = 0;
+// 				//foregroundView.backgroundColor = color;
+// 				HBLogInfo(@"stbar  FGView %@", foregroundView);
+// 	        }else{
+// 	        	if(LSStat && onLS){
+// 					UIView* statusbar = [[objc_getClass("UIApplication") sharedApplication] statusBar];
+//     				UIStatusBarForegroundView *foregroundView = MSHookIvar<UIStatusBarForegroundView *>(statusbar, "_foregroundView");
+// 					[foregroundView setHidden:YES];
+// 					foregroundView.alpha = 0;
+// 					//foregroundView.backgroundColor = color;
+// 				}
+// 	        }
+// }
+
 %group statusbarHider
 	%hook UIStatusBar
-
+		/*
+			iOS10 if you have sb set to hide, but open app, go to ls, then unlock and close the app the sb will show
+			this stops that.
+		*/
 		- (void)setForegroundColor:(id)arg1 animationParameters:(id)arg2{
-			id backup = arg1;
 			UIApplication *sbapp = [objc_getClass("UIApplication") sharedApplication];
 			SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
+			UIView* statusbar = [sbapp statusBar];
+    		UIStatusBarForegroundView *foregroundView = MSHookIvar<UIStatusBarForegroundView *>(statusbar, "_foregroundView");
 			NSString *ckBundle = [[sbapp _accessibilityFrontMostApplication] bundleIdentifier];
 			BOOL onLS = [lsMan isUILocked];
 	        BOOL onSB = ckBundle == nil ? YES : NO;
 	        if(SBStat && onSB && !onLS){
 	        	arg1 = [UIColor clearColor];
+				[foregroundView setHidden:YES];
+				foregroundView.alpha = 0;
 	        }else{
-	        	arg1 = backup;
+	        	if(LSStat && onLS){
+					[foregroundView setHidden:YES];
+					foregroundView.alpha = 0;
+				}
 	        }
 			%orig;
 		}
-
-		-(void)layoutSubviews{
-			%orig;
-			UIApplication *sbapp = [objc_getClass("UIApplication") sharedApplication];
-		    if( sbapp != nil){
-			    NSString *ckBundle = [[sbapp _accessibilityFrontMostApplication] bundleIdentifier];
-			    SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
-        		BOOL onSB = ckBundle == nil ? YES : NO;
-				BOOL onLS = [lsMan isUILocked];
-				if(onSB || onLS){
-					if(SBStat && onSB && !onLS){
-						[self setForegroundColor:color];
-					}else{
-						if(LSStat && onLS){
-							[self setForegroundColor:color];
-						}
-					}
-				}
-			}
-		}
 	%end
-	%hook UIStatusBarStyleAttributes //iOS needs this
+	%hook UIStatusBarStyleAttributes //Helps with a smooth transition from app to sb
 		- (double) foregroundAlpha{
+			double alpha = 1.0;
 				if(SBStat || LSStat){
 					UIApplication *onSB = [objc_getClass("UIApplication") sharedApplication];
 					if(onSB != nil){
@@ -538,14 +566,14 @@ static void loadFrontPage(){
 							BOOL onSB = ckBundle == nil ? YES : NO;
 							BOOL onLS = [lsMan isUILocked];
 							if(SBStat && onSB && !onLS){
-								return 0.0;
+								alpha = 0.0;
 							}
 							if(LSStat && onLS){
-								return 0.0;
+								alpha = 0.0;
 							}
 					    }
 					 }
-			return %orig;
+			return alpha;
 		}
 	%end
 %end

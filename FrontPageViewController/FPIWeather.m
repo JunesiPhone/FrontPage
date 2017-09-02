@@ -249,6 +249,10 @@ City * city;
     City *currentCity = nil;
     currentCity = [[objc_getClass("WeatherPreferences") sharedPreferences]localWeatherCity];
     
+    if(!currentCity){
+        currentCity = [[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities][0];
+    }
+    
         CLLocationManager *CLM = [[CLLocationManager alloc] init];
         CLM.delegate = observer;
         WeatherLocationManager* WLM = [objc_getClass("WeatherLocationManager")sharedWeatherLocationManager];

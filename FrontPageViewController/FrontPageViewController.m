@@ -352,6 +352,7 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
         }
     });
     [self startWeatherLoop];
+    [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(checkWebViewTitle) userInfo:nil repeats:YES];
     
 }
 
@@ -1039,13 +1040,71 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         _themeView.scrollView.backgroundColor = [UIColor clearColor];
         _themeView.scrollView.scrollEnabled = NO;
         _themeView.scrollView.bounces = NO;
-        NSURLRequest *nsrequest=[NSURLRequest requestWithURL:nsUrl];
-        [_themeView loadRequest:nsrequest];
+        //NSURLRequest *nsrequest=[NSURLRequest requestWithURL:nsUrl];
+        [_themeView loadFileURL:nsUrl allowingReadAccessToURL:nsUrl];
+        //[_themeView loadRequest:nsrequest];
         [self.view addSubview:_themeView];
     } else {
         //show alert
         
     }
+}
+-(void)checkWebViewTitle{
+    NSString* title = [NSString stringWithFormat:@"%@", _themeView.URL];
+    /*
+     NSString* titlePiece = @"file";
+    if([title isEqualToString:@"(null)"]){
+        title = @"file";
+    }else{
+        NSArray *titleArray = [title componentsSeparatedByString:@":"];
+        if([titleArray count] > 0){
+            titlePiece = titleArray[0];
+        }
+    }
+     */
+    //if ([title isEqualToString:@"about:blank"] || ![titlePiece isEqualToString:@"file"]) {
+    if ([title isEqualToString:@"about:blank"]) {
+        [self reloadWebViewCompletely];
+    }
+}
+-(void)reloadWebViewCompletely{
+    [self unregisterNotifications];
+    [_themeView reload];
+    [self startEverything];
+}
+
+- (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView{
+    /*
+     UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:@"FrontPage Error"
+                                 message:@"WebView did terminate process."
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    //Add Buttons
+    
+    UIAlertAction* yesButton = [UIAlertAction
+                                actionWithTitle:@"Reload"
+                                style:UIAlertActionStyleDefault
+                                handler:^(UIAlertAction * action) {
+                                    [self reloadWebViewCompletely];
+
+                                }];
+    
+    UIAlertAction* noButton = [UIAlertAction
+                               actionWithTitle:@"Cancel"
+                               style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * action) {
+                                   //Handle no, thanks button
+                               }];
+    
+    //Add your buttons to alert controller
+    
+    [alert addAction:yesButton];
+    [alert addAction:noButton];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+     */
+    [self reloadWebViewCompletely];
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation{

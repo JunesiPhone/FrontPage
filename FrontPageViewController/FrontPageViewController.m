@@ -1040,9 +1040,9 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         _themeView.scrollView.backgroundColor = [UIColor clearColor];
         _themeView.scrollView.scrollEnabled = NO;
         _themeView.scrollView.bounces = NO;
-        //NSURLRequest *nsrequest=[NSURLRequest requestWithURL:nsUrl];
-        [_themeView loadFileURL:nsUrl allowingReadAccessToURL:nsUrl];
-        //[_themeView loadRequest:nsrequest];
+        NSURLRequest *nsrequest=[NSURLRequest requestWithURL:nsUrl];
+        //[_themeView loadFileURL:nsUrl allowingReadAccessToURL:nsUrl];
+        [_themeView loadRequest:nsrequest];
         [self.view addSubview:_themeView];
     } else {
         //show alert

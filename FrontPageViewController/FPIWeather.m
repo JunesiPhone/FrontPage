@@ -253,12 +253,14 @@ City * city;
         if([[[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities] count] > 0){
             currentCity = [[objc_getClass("WeatherPreferences") sharedPreferences]loadSavedCities][0];
         }else{
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"FrontPage Request"
+            /*
+             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"FrontPage Request"
                                                             message:@"You do not have a location set in the weather app. Please set one."
                                                            delegate:self
                                                   cancelButtonTitle:@"OK"
                                                   otherButtonTitles:nil];
             [alert show];
+             */
         }
     }
     

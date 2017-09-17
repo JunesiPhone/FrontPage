@@ -352,7 +352,7 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
         }
     });
     [self startWeatherLoop];
-    [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(checkWebViewTitle) userInfo:nil repeats:YES];
+    //[NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(checkWebViewTitle) userInfo:nil repeats:YES];
     
 }
 
@@ -930,7 +930,14 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
     UIImageCollectionViewCellNew *cell=[collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath];
-    cell.imageView.frame = CGRectMake(0,0,self.view.frame.size.width/3 - 25, self.view.frame.size.height/4);
+    //cell.imageView.frame = CGRectMake(0,0,self.view.frame.size.width/3 - 25, self.view.frame.size.height/4);
+    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
+       cell.imageView.frame = CGRectMake(0,0,320/2,569/2);
+       cell.textView.frame = CGRectMake(2, cell.imageView.frame.size.height - 24, cell.imageView.frame.size.width - 35, 15);
+
+    }else{
+        cell.imageView.frame = CGRectMake(0,0,self.view.frame.size.width/3 - 25, self.view.frame.size.height/4);
+    }
     NSString *localPath = [NSString stringWithFormat:@"var/mobile/Library/FrontPage/%@/screenshot.jpg", _themeArray[indexPath.row]];
     if([[NSFileManager defaultManager] fileExistsAtPath:localPath]){
         cell.imageView.image = [UIImage imageWithContentsOfFile:localPath];
@@ -945,7 +952,12 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath{
-    return CGSizeMake(self.view.frame.size.width/3 - 20, self.view.frame.size.height/4);
+    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
+        return CGSizeMake(320/2, 569/2);
+    }else{
+        return CGSizeMake(self.view.frame.size.width/3 - 20, self.view.frame.size.height/4);
+    }
+    
 }
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
     return 10.0;

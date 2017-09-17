@@ -251,6 +251,7 @@ static void goHideDots(){
 	if (!folderView) return;
 	SBIconListPageControl* pageControl = MSHookIvar<SBIconListPageControl*>(folderView, "_pageControl");
 	pageControl.alpha = 0;
+	pageControl.hidden = YES;
 }
 static void goShowDots(){
 	//hidingDots = NO;
@@ -258,6 +259,7 @@ static void goShowDots(){
 	if (!folderView) return;
 	SBIconListPageControl* pageControl = MSHookIvar<SBIconListPageControl*>(folderView, "_pageControl");
 	pageControl.alpha = 1;
+	pageControl.hidden = NO;
 }
 
 /* If user swipes down to show search pagedots will show again */
@@ -265,6 +267,8 @@ static void goShowDots(){
 	- (double)defaultHeight{
 		if(hideDots){
 			self.alpha = 0;
+
+			self.hidden = YES;
 		}
 		return %orig;
 	}
@@ -721,8 +725,9 @@ static NSMutableDictionary *alarmsUIConcreteLocalNotifications = [[NSMutableDict
 }
 
 -(void)_publishAlarmsWithScheduledNotifications:(__unsafe_unretained UIConcreteLocalNotification*)arg1{
-	[alarmsUIConcreteLocalNotifications setObject: arg1 forKey:@"alarms"];
-	//doesn't iOS10 doesn't need this call
+	if(arg1 != nil){
+		[alarmsUIConcreteLocalNotifications setObject: arg1 forKey:@"alarms"];
+	}
 	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingalarm"), NULL, NULL, true);
 	return %orig;
 }

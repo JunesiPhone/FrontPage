@@ -600,14 +600,14 @@ static void loadFrontPage(){
     %orig;
 }
 
-// - (_Bool)isShowingHomescreen{
-// 	bool isShowing = %orig;
-// 	if(isShowing){
-// 		//hideShowItems();
-// 		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.showinghomescreen"), NULL, NULL, true);
-// 	}
-// 	return isShowing;
-// }
+- (_Bool)isShowingHomescreen{
+	bool isShowing = %orig;
+	if(isShowing && SBStat){
+		UIStatusBar *statusBar=[[UIApplication sharedApplication] statusBar];
+		[statusBar setForegroundColor:color];
+	}
+	return %orig;
+}
 %end
 
 

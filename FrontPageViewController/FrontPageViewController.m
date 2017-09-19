@@ -1242,6 +1242,26 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         [[objc_getClass("SBUIController") sharedInstanceIfExists] openAppDrawer];
     }
 }
+
+-(void)hidespringboardicons{
+    SBIconController* shared = [objc_getClass("SBIconController") sharedInstance];
+    for (int i = 0; i <= 4; i++){
+        if([shared rootIconListAtIndex:i] != nil){
+            UIView *iconViewList = [shared rootIconListAtIndex:i];
+            iconViewList.alpha = 0;
+        }
+    }
+}
+
+-(void)showspringboardicons{
+    SBIconController* shared = [objc_getClass("SBIconController") sharedInstance];
+    for (int i = 0; i <= 4; i++){
+        if([shared rootIconListAtIndex:i] != nil){
+            UIView *iconViewList = [shared rootIconListAtIndex:i];
+            iconViewList.alpha = 1;
+        }
+    }
+}
 //user can load plist and return json to loadSettings();
 -(void)loadSettings:(NSString *)plist{
     NSString* url = plist;

@@ -119,6 +119,14 @@
 - (BOOL)changeTrack:(int)arg1;
 @end
 
+@interface SBIconController : UIViewController
++(instancetype)sharedInstance;
+- (id)rootIconListAtIndex:(long long)arg1;
+- (id)dockListView;
+- (id)contentView;
+- (id)model;
+@property (nonatomic, retain) UIView* contentView;
+@end
 
 
 //@interface MPUNowPlayingController : NSObject

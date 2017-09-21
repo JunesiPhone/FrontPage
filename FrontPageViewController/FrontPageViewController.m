@@ -106,6 +106,10 @@ void respringNotification (CFNotificationCenterRef center,FrontPageViewControlle
 void deviceUnlock (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
     deviceLocked = NO;
     [observer callJSFunction:@"deviceUnlocked()"];
+    
+    NSDictionary* systemInfo = [FPISystem systemInfo];
+    [observer convertDictToJSON:systemInfo withName:@"system"];
+    [observer callJSFunction:@"loadSystem()"];
 }
 void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
     [observer showMenu];
@@ -118,6 +122,15 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
     }else{
         [[objc_getClass("SBUIController") sharedInstance] clickedMenuButton];
     }
+}
+
+-(void)setWidth:(NSString *) widthValue{
+
+    [_frontPageThemeSettings setValue:widthValue forKey:@"width"];
+    
+    _themeView.frame = CGRectMake(_themeView.frame.origin.x, _themeView.frame.origin.y, [widthValue intValue], _themeView.frame.size.height);
+    
+    self.view.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, [widthValue intValue], self.view.frame.size.height);
 }
 
 #pragma - mark Apply Settings
@@ -590,7 +603,7 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
         }
         if([self isMusicPending]){
             [self setMusicPending:NO];
-            [self injectAppsIsNotification:YES];
+            [self injectMusicIsNotification:YES];
         }
         if([self isNotificationsPending]){
             [self setNotificationsPending:NO];
@@ -743,9 +756,12 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
             return;
         }
     }
-    NSDictionary* musicInfo = [FPIMusic musicInfo];
-    [self convertDictToJSON:musicInfo withName:@"music"];
-    [self callJSFunction:@"loadMusic()"];
+    dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.5);
+    dispatch_after(delay, dispatch_get_main_queue(), ^(void){
+        NSDictionary* musicInfo = [FPIMusic musicInfo];
+        [self convertDictToJSON:musicInfo withName:@"music"];
+        [self callJSFunction:@"loadMusic()"];
+    });
 }
 -(void)injectNotificationsIsNotification:(bool)notification{
     if(notification){

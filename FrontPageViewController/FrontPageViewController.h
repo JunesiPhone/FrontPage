@@ -17,8 +17,6 @@
     WKWebView *_themeView;
     UIView *_themeSetupView;
     UIView *_mainView;
-    UIView *_loadingView;
-    UILabel *infoLabel;
     UICollectionView *_collectionView;
     NSMutableArray *_themeArray;
     NSMutableDictionary *_frontPageSettings;

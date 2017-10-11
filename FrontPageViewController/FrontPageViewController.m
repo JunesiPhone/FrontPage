@@ -11,6 +11,7 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <CydiaSubstrate/CydiaSubstrate.h>
 #import <CoreFoundation/CoreFoundation.h>
+#import <EventKit/EventKit.h>
 
 #include "MediaRemote.h"
 #import <objc/runtime.h>
@@ -50,6 +51,8 @@ bool deviceLocked = YES;
 bool springBoardEnabled = NO;
 NSTimer *weatherTimer;
 static bool webViewIsLoaded = NO;
+
+static EKEventStore *store;
 
 + (instancetype)sharedInstance {
     static id _sharedInstance = nil;
@@ -100,6 +103,7 @@ int switcherLastCalled = 0;
     switcherLastCalled = seconds;
 }
 
+
 void respringNotification (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
     [observer respring];
 }
@@ -110,6 +114,8 @@ void deviceUnlock (CFNotificationCenterRef center,FrontPageViewController * obse
     NSDictionary* systemInfo = [FPISystem systemInfo];
     [observer convertDictToJSON:systemInfo withName:@"system"];
     [observer callJSFunction:@"loadSystem()"];
+    
+    
 }
 void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
     [observer showMenu];
@@ -227,26 +233,9 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
     
     [self setScreenIsOn:YES];
     
-    _loadingView=[[UIView alloc]initWithFrame:CGRectMake(0, 0, 180, 50)];
-    _loadingView.tag = 4870905;
-    _loadingView.center = self.view.center;
-    _loadingView.layer.cornerRadius = 5;
-    
-    [_loadingView setBackgroundColor:[[UIColor whiteColor] colorWithAlphaComponent:0.6f]];
-    infoLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 180, 50)];
-    infoLabel.text = @"Setting up FrontPage";
-    infoLabel.textAlignment = NSTextAlignmentCenter;
-    [infoLabel setFont:[UIFont boldSystemFontOfSize:12]];
-    [_loadingView addSubview:infoLabel];
-    
-    UIView* topView = [UIApplication sharedApplication].keyWindow.rootViewController.view;
-    if(topView == nil){ //iOS8 doesn't respond to keyWindow.rootViewController
-        //do nothing as we need lockscreen view. Could look for it but not important enough.
-    }else{
-        [topView addSubview:_loadingView];
-        [topView bringSubviewToFront:_loadingView];
+    if(!store){
+        store = [[EKEventStore alloc] init];
     }
-    //[[UIApplication sharedApplication].keyWindow.rootViewController.view addSubview:_loadingView];
     
     
     FrontPageViewController *observer = self;
@@ -447,7 +436,12 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
 -(void)buttonPressed:(UIButton *)sender{
     [_themeSetupView removeFromSuperview];
     if (sender.tag == 003){
-        [self openApp:@"com.apple.Preferences"];
+        NSURL* fpPath = [NSURL URLWithString:@"prefs:root=FrontPage"];
+        if ([[UIApplication sharedApplication] canOpenURL:fpPath]){
+            [[UIApplication sharedApplication] openURL:fpPath];
+        }else{
+            [self openApp:@"com.apple.Preferences"];
+        }
     }
     [self loadThemeSettings:[_frontPageSettings objectForKey:@"Selected"]];
 }
@@ -639,6 +633,7 @@ void newAppUpdated(CFNotificationCenterRef center,FrontPageViewController * obse
     [observer injectSingleApp];
 }
 void updatingApps(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    [FPIApps saveAllIconImagesWithObserver:observer];
     [observer injectAppsIsNotification:YES];
     [observer checkPendingNotifications];
 }
@@ -672,6 +667,29 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 
 #pragma mark - Injections
 
+-(void)loadReminders{
+    NSPredicate *predicate2 = [store predicateForRemindersInCalendars:nil];
+    [store fetchRemindersMatchingPredicate:predicate2 completion:^(NSArray *reminders) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSMutableArray *eventsDictArray = [[NSMutableArray alloc] init];
+            NSMutableDictionary *eventsDict;
+            for (EKReminder *object in reminders) {
+                if(!object.completionDate && object.title){
+                    eventsDict = [[NSMutableDictionary alloc]init];
+                    [eventsDict setValue:object.title forKey:@"title"];
+                    //[eventsDict setValue:object.dueDate forKey:@"date"];
+                    [eventsDictArray addObject:eventsDict];
+                }
+            }
+            NSMutableDictionary *info =[[NSMutableDictionary alloc] init];
+            [info setValue:eventsDictArray forKey:@"all"];
+            [self convertDictToJSON:info withName:@"reminders"];
+            [self callJSFunction:@"loadReminders()"];
+        });
+    }];
+}
+
+
 -(void)injectSystemIsNotification: (bool)notification{
     if(notification){
         if(![self isScreenOn] || [self checkIfInApp]){
@@ -679,6 +697,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
             return;
         }
     }
+    [self loadReminders];
     NSDictionary* systemInfo = [FPISystem systemInfo];
     [self convertDictToJSON:systemInfo withName:@"system"];
     [self callJSFunction:@"loadSystem()"];
@@ -802,11 +821,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 #pragma mark - Start All Info
 
 -(void)startEverything{
-    
-    //looking for is loading view
-    if((UIView *)[[UIApplication sharedApplication].keyWindow.rootViewController.view viewWithTag:4870905]){
-        [(UIView *)[[UIApplication sharedApplication].keyWindow.rootViewController.view viewWithTag:4870905] removeFromSuperview];
-    }
+
     
     bool system = [[_frontPageThemeSettings objectForKey:@"usessysteminfo"]boolValue];
     bool battery = [[_frontPageThemeSettings objectForKey:@"usesbatteryinfo"]boolValue];
@@ -818,6 +833,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     bool music = [[_frontPageThemeSettings objectForKey:@"usesmusicinfo"]boolValue];
     bool alarm = [[_frontPageThemeSettings objectForKey:@"usesalarminfo"]boolValue];
     bool weather = [[_frontPageThemeSettings objectForKey:@"usesweatherinfo"]boolValue];
+    
     
     //if nil is returned it will be false so works without issues.
     
@@ -862,19 +878,14 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         [self injectAlarmIsNotification:NO];
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)updatingAlarm,CFSTR("com.junesiphone.frontpage.updatingalarm"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
     }
-    
     [self callJSFunction:@"FPIloaded()"];
     
     if(weather){
         [self updateWeatherNow];
     }
     
-    //looking for is loading view
-    if((UIView *)[[UIApplication sharedApplication].keyWindow.rootViewController.view viewWithTag:4870905]){
-        [(UIView *)[[UIApplication sharedApplication].keyWindow.rootViewController.view viewWithTag:4870905] removeFromSuperview];
-    }
-    
     [self checkPendingNotifications];
+    [self loadReminders];
 }
 
 #pragma mark - CollectionView
@@ -940,7 +951,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         [self loadThemeSettings:theme];
         [_themeSetupView removeFromSuperview];
     }
-    [[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
+    //[[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
     [self unregisterNotifications]; //hopefully unregistering notifications that aren't registered isn't an issue.
 }
 
@@ -1138,6 +1149,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation{
     [self resizeWebView];
     [self startEverything];
+    [self callJSFunction:@"deviceUnlocked()"];
     webViewIsLoaded = YES;
 }
 

@@ -190,7 +190,7 @@ NSBundle *FPBundle;
 
 static void goHideIcons(){
 	SBIconController* shared = [objc_getClass("SBIconController") sharedInstance];
-	for (int i = 0; i <= 4; i++){
+	for (int i = 0; i <= 13; i++){
     	if([shared rootIconListAtIndex:i] != nil){
     		UIView *iconViewList = [shared rootIconListAtIndex:i];
     		iconViewList.alpha = 0;
@@ -201,7 +201,7 @@ static void goHideIcons(){
 
 static void goShowIcons(){
 	SBIconController* shared = [objc_getClass("SBIconController") sharedInstance];
-	for (int i = 0; i <= 4; i++){
+	for (int i = 0; i <= 13; i++){
     	if([shared rootIconListAtIndex:i] != nil){
     		UIView *iconViewList = [shared rootIconListAtIndex:i];
     		iconViewList.alpha = 1;
@@ -219,6 +219,7 @@ static void goHideDock(){
 	if(hideDock){
 		dockView.alpha = 0;
 		dockView.userInteractionEnabled = NO;
+		dockView.hidden = YES;
 	}
 	//hidingDock = YES;
 }
@@ -228,6 +229,7 @@ static void goShowDock(){
 	if(!hideDock){
 		dockView.alpha = 1;
 		dockView.userInteractionEnabled = YES;
+		dockView.hidden = NO;
 	}
 	//hidingDock = NO;
 }
@@ -598,6 +600,10 @@ static void loadFrontPage(){
 -(void)frontDisplayDidChange:(id)arg1{
 	hideShowItems();
     %orig;
+}
+-(long long)_frontMostAppOrientation{
+	goHideDock();
+	return %orig;
 }
 
 - (_Bool)isShowingHomescreen{

@@ -15,4 +15,6 @@
 +(NSMutableDictionary *) statusBarInfo;
 +(void)enableWifi;
 +(void)disableWifi;
++(void)enableBluetooth;
++(void)disableBluetooth;
 @end

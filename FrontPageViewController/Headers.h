@@ -128,6 +128,18 @@
 @property (nonatomic, retain) UIView* contentView;
 @end
 
+@interface IWWidgetsPopup : UIViewController {
+    NSMutableArray* _widgetsList;    
+}
+-(void)show;
+-(id)init;
+@end
+
+
+@interface SBSearchGesture : NSObject
+-(void)revealAnimated:(BOOL)arg1;
+@end
+
 
 //@interface MPUNowPlayingController : NSObject
 //- (void)startUpdating;

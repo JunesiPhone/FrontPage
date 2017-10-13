@@ -31,6 +31,12 @@
 - (void)setWiFiEnabled:(BOOL)arg1;
 @end
 
+/*BlueTooth*/
+@interface BluetoothManager : NSObject
++ (id)sharedInstance;
+- (BOOL)setEnabled:(BOOL)arg1;
+- (BOOL)enabled;
+@end
 
 @implementation FPIStatusBar
 
@@ -58,6 +64,12 @@
 +(void)disableWifi{
     [[objc_getClass("SBWiFiManager") sharedInstance] setWiFiEnabled:NO];
 }
++(void)enableBluetooth{
+    [[objc_getClass("BluetoothManager") sharedInstance] setEnabled:YES];
+}
++(void)disableBluetooth{
+    [[objc_getClass("BluetoothManager") sharedInstance] setEnabled:NO];
+}
 // --Signal
 // 0 = operatorName, 1 = signalStrength, 2 = signalStrengthBars
 +(id)getSignalInfo:(int) info{
@@ -78,6 +90,9 @@
 
 
 +(NSMutableDictionary *)statusBarInfo{
+    BluetoothManager *BM = [objc_getClass("BluetoothManager") sharedInstance];
+    bool v = [BM enabled];
+    
     NSMutableDictionary *statusBarInfo =[[NSMutableDictionary alloc] init];
     [statusBarInfo setValue:[self getWifiInfo:0] forKey:@"wifiName"];
     [statusBarInfo setValue:[self getWifiInfo:1] forKey:@"wifiRSSI"];
@@ -85,6 +100,7 @@
     [statusBarInfo setValue:[self getSignalInfo:0] forKey:@"signalName"];
     [statusBarInfo setValue:[self getSignalInfo:1] forKey:@"signalStrength"];
     [statusBarInfo setValue:[self getSignalInfo:2] forKey:@"signalBars"];
+    [statusBarInfo setValue:[NSNumber numberWithBool:v] forKey:@"bluetoothEnabled"];
     return statusBarInfo;
 }
 @end

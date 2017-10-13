@@ -225,6 +225,18 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
     }
 }
 
+- (void)removeWebViewDoubleTapGestureRecognizer:(UIView *)view{
+       for (UIGestureRecognizer *recognizer in [view gestureRecognizers]) {
+                if ([recognizer isKindOfClass:[UITapGestureRecognizer class]] && [(UITapGestureRecognizer *)recognizer numberOfTapsRequired] == 2) {
+                        [view removeGestureRecognizer:recognizer];
+                    }
+          }
+      for (UIView *subview in view.subviews) {
+            [self removeWebViewDoubleTapGestureRecognizer:subview];
+      }
+}
+
+
 
 #pragma mark - View Did Load
 
@@ -426,10 +438,17 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
 }
 
 -(void)addGestures{
+    
     UISwipeGestureRecognizer *downRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(doubleSwipe:)];
     downRecognizer.direction = UISwipeGestureRecognizerDirectionDown;
     [downRecognizer setNumberOfTouchesRequired:2];
     [self.view addGestureRecognizer:downRecognizer];
+    
+    
+    UISwipeGestureRecognizer *upRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(doubleSwipeup:)];
+    upRecognizer.direction = UISwipeGestureRecognizerDirectionUp;
+    [upRecognizer setNumberOfTouchesRequired:2];
+    [self.view addGestureRecognizer:upRecognizer];
 }
 
 /* themeSetupView buttons */
@@ -550,6 +569,13 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
     [self showMenu];
 }
 
+-(void)doubleSwipeup:(UISwipeGestureRecognizer *)gestureRecognizer{
+    if(objc_getClass("IWWidgetsPopup")){
+        IWWidgetsPopup *iWidgetView = [[objc_getClass("IWWidgetsPopup") alloc]init];
+        [iWidgetView show];
+    }
+}
+
 -(void)sleep{
     [[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
 }
@@ -558,7 +584,7 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
     [FPIWeather startWeather:self];
 }
 -(void)startWeatherLoop{
-    dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 5.0);
+    dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 1.0);
     dispatch_after(delay, dispatch_get_main_queue(), ^(void){
         if(![weatherTimer isValid] && !springBoardEnabled) {
             weatherTimer = [NSTimer scheduledTimerWithTimeInterval:1195.0 target:self selector:@selector(startWeatherLoop) userInfo:nil repeats:NO];
@@ -1087,6 +1113,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         //show alert
         
     }
+    [self removeWebViewDoubleTapGestureRecognizer:_themeView];
 }
 -(void)checkWebViewTitle{
     NSString* title = [NSString stringWithFormat:@"%@", _themeView.URL];
@@ -1166,7 +1193,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 #pragma mark - Evaluate Script
 
 -(NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script{
-    NSLog(@"FrontPage Calling Script %@", script);
+    //NSLog(@"FrontPage Calling Script %@", script);
     [_themeView evaluateJavaScript:script completionHandler:^(id object, NSError *error) { }];
     return @"Done";
 }
@@ -1223,6 +1250,12 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     }
 }
 
+-(void)opensearch{
+    [[objc_getClass("SBSearchGesture") sharedInstance] revealAnimated:YES];
+}
+
+
+
 -(void)openSettings{
     
 }
@@ -1260,6 +1293,12 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 }
 -(void)disablewifi{
     [FPIStatusBar disableWifi];
+}
+-(void)enablebluetooth{
+    [FPIStatusBar enableBluetooth];
+}
+-(void)disablebluetooth{
+    [FPIStatusBar disableBluetooth];
 }
 -(void)refreshWeather{
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updateWeather" object:self];
@@ -1314,8 +1353,10 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     SBApplication * app= [[objc_getClass("SBApplicationController") sharedInstance] applicationWithBundleIdentifier:bundle];
     if(app){
         if(![app isSystemApplication] && ![app isSpringBoard]){
-            [[objc_getClass("SBApplicationController") sharedInstance] uninstallApplication:app];
-            [self vibrate];
+            if([[objc_getClass("SBApplicationController") sharedInstance] respondsToSelector:@selector(uninstallApplication:)]) {
+                [[objc_getClass("SBApplicationController") sharedInstance] uninstallApplication:app];
+                [self vibrate];
+            }
         }
     }
 }

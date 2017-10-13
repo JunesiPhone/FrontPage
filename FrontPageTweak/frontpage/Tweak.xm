@@ -442,7 +442,7 @@ static void loadFrontPage(){
 	    }
 	    for (UIView* subview in self.subviews ) {
 	        if ( [subview hitTest:[self convertPoint:point toView:subview] withEvent:event] != nil ) {
-	            if([subview isKindOfClass:[%c(SBRootIconListView) class]]){ //we only want to check SBRootIconList now. Could add iWidgets.
+	            if([subview isKindOfClass:[%c(SBRootIconListView) class]] || [subview isKindOfClass:[%c(IWWidgetsView) class]]){ //we only want to check SBRootIconList now. Could add iWidgets.
 	            	for (UIView* subview2 in subview.subviews ) {
 	            		if ( [subview2 hitTest:[self convertPoint:point toView:subview2] withEvent:event] != nil ) {
 	            			isAnIconBeingTapped = YES;

@@ -52,6 +52,8 @@ bool springBoardEnabled = NO;
 NSTimer *weatherTimer;
 static bool webViewIsLoaded = NO;
 
+static NSMutableDictionary *collectionViewImages; //caching for collection view
+
 static EKEventStore *store;
 
 + (instancetype)sharedInstance {
@@ -251,6 +253,7 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
     
     
     FrontPageViewController *observer = self;
+    collectionViewImages = [[NSMutableDictionary alloc] init];
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
                                     (__bridge const void *)(observer),
                                     (CFNotificationCallback)iconLock,
@@ -982,21 +985,37 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
-    UIImageCollectionViewCellNew *cell=[collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath];
+    
+    UIImageCollectionViewCellNew *cell = (UIImageCollectionViewCellNew *)[collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath];
+    
+    if(!cell){
+        cell = [[UIImageCollectionViewCellNew alloc] init];
+    }
+    
+    UIImageView* imageView = (UIImageView *)[cell viewWithTag:3000];
+    UILabel* labelView = (UILabel *)[cell viewWithTag:100];
+    
     //cell.imageView.frame = CGRectMake(0,0,self.view.frame.size.width/3 - 25, self.view.frame.size.height/4);
     if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
-       cell.imageView.frame = CGRectMake(0,0,320/2,569/2);
-       cell.textView.frame = CGRectMake(2, cell.imageView.frame.size.height - 24, cell.imageView.frame.size.width - 35, 15);
+       imageView.frame = CGRectMake(0,0,320/2,569/2);
+       labelView.frame = CGRectMake(2, imageView.frame.size.height - 24, imageView.frame.size.width - 35, 15);
 
     }else{
-        cell.imageView.frame = CGRectMake(0,0,self.view.frame.size.width/3 - 25, self.view.frame.size.height/4);
+        imageView.frame = CGRectMake(0,0,self.view.frame.size.width/3 - 25, self.view.frame.size.height/4);
     }
+    
     NSString *localPath = [NSString stringWithFormat:@"var/mobile/Library/FrontPage/%@/screenshot.jpg", _themeArray[indexPath.row]];
+    //caching
     if([[NSFileManager defaultManager] fileExistsAtPath:localPath]){
-        cell.imageView.image = [UIImage imageWithContentsOfFile:localPath];
-    }else{
+        if(![collectionViewImages objectForKey:_themeArray[indexPath.row]]){
+            imageView.image = [UIImage imageWithContentsOfFile:localPath];
+            [collectionViewImages setValue:imageView.image forKey:_themeArray[indexPath.row]];
+        }else{
+            imageView.image = [collectionViewImages objectForKey:_themeArray[indexPath.row]];
+        }
     }
-    cell.textView.text = _themeArray[indexPath.row];
+    
+    labelView.text = _themeArray[indexPath.row];
     return cell;
 }
 

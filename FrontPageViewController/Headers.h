@@ -166,9 +166,10 @@
         self.imageView.frame = CGRectInset(self.imageView.frame, -borderWidth, -borderWidth);
         self.imageView.layer.borderColor = [UIColor colorWithRed:0.26 green:0.26 blue:0.26 alpha:1.0].CGColor;
         self.imageView.layer.borderWidth = borderWidth;
+        self.imageView.tag = 3000;
         self.textView = [[UILabel alloc] initWithFrame:CGRectMake(2, self.frame.size.height - 24, self.frame.size.width - 35, 15)];
         self.textView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.8];
-        self.textView.frame =self.imageView.frame = CGRectInset(self.textView.frame, -borderWidth, -borderWidth);
+        self.textView.frame = CGRectInset(self.textView.frame, -borderWidth, -borderWidth);
         self.textView.tintColor = [UIColor whiteColor];
         self.textView.textColor = [UIColor whiteColor];
         self.textView.textAlignment = NSTextAlignmentCenter;

@@ -178,6 +178,8 @@ static BOOL hideDots = NO;
 static BOOL applied;
 static BOOL loaded;
 static BOOL iconlock;
+static BOOL interaction;
+
 static Class principalClass;
 static id instance;
 static UIView *insView;
@@ -380,6 +382,11 @@ static void loadFrontPage(){
 			insView = ins.view;
 			insView.tag = 12345679;
 			[topViewSB addSubview:insView];
+			if(interaction){
+				insView.userInteractionEnabled = NO;
+			}else{
+				insView.userInteractionEnabled = YES;
+			}
 			if(!top){
 				[topViewSB sendSubviewToBack:insView];
 			}else{
@@ -779,6 +786,8 @@ static NSMutableDictionary *ncNotificationCounts2 = [[NSMutableDictionary alloc]
 
 static void notificationCallback(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
 
+	NSNumber *inter = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"userinteraction" inDomain:nsDomainString];
+
 	NSNumber *n = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"enabled" inDomain:nsDomainString];
 	NSNumber *t = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"top" inDomain:nsDomainString];
 	NSNumber *d = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"SBStat" inDomain:nsDomainString];
@@ -789,15 +798,28 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
   	NSNumber *dock = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"hideDock" inDomain:nsDomainString];
   	NSNumber *icons = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"hideIcons" inDomain:nsDomainString];
 
+
 	enabled = (n)? [n boolValue]:NO;
 	top = (t)? [t boolValue]:NO;
 	SBStat = (d)? [d boolValue]:NO;
 	LSStat = (e)? [e boolValue]:NO;
 	iconlock = (c)? [c boolValue]:NO;
 
+	interaction = (inter)? [inter boolValue]:NO;
+
 	hideIcons = (icons) ? [icons boolValue] : NO;
 	hideDock = (dock) ? [dock boolValue] : NO;
 	hideDots = (dots) ? [dots boolValue] : NO;
+
+	if(interaction){
+		if(insView){
+			insView.userInteractionEnabled = NO;
+		}
+	}else{
+		if(insView){
+			insView.userInteractionEnabled = YES;
+		}
+	}
 
 	if(iconlock){
 		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.iconLock"), NULL, NULL, true);
@@ -820,9 +842,10 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
 	    if (insView) {
 	    	instance = nil;
 	        [insView removeFromSuperview];
+	        disableFrontPage();
 	    }
 	    if(applied){
-	    	[[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
+	    	//[[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
 	    }
 	    applied = NO;
 	    top = NO;

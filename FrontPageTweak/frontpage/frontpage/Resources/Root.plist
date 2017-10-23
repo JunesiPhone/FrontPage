@@ -207,9 +207,9 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>Some themes have a one finger swipe down gesture. If user interaction is not disabled and you swipe down with one finger, the FrontPage menu will show.</string>
+			<string>Some themes have a one finger swipe down gesture. If user interaction is not disabled and you swipe down with one finger, the FrontPage menu will show. Two finger swipe up will show iWidget Menu. If FrontPage is set to bottom you can move iWidgets by tap hold.</string>
 			<key>label</key>
-			<string>Tip:</string>
+			<string>Tips:</string>
 		</dict>
 		<dict>
 			<key>cell</key>

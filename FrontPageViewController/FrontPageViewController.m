@@ -335,13 +335,15 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
                                                   [self setScreenIsOn:YES];
                                                   
                                               }else{
-                                                  [self setScreenIsOn:NO];
-                                                  dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.1);
-                                                  dispatch_after(delay, dispatch_get_main_queue(), ^(void){
-                                                      [self callJSFunction:@"deviceLocked()"];
-                                                      deviceLocked = YES;
-                                                      springBoardEnabled = NO;
-                                                  });
+                                                  if(![[objc_getClass("SpringBoard") sharedApplication] _accessibilityFrontMostApplication]){
+                                                      [self setScreenIsOn:NO];
+                                                      dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.1);
+                                                      dispatch_after(delay, dispatch_get_main_queue(), ^(void){
+                                                          [self callJSFunction:@"deviceLocked()"];
+                                                          deviceLocked = YES;
+                                                          springBoardEnabled = NO;
+                                                      });
+                                                  }
                                               }
                                               if (result != NOTIFY_STATUS_OK) {
                                                   NSLog(@"FrontPage - notify_get_state() not returning NOTIFY_STATUS_OK");

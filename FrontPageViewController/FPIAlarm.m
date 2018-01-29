@@ -19,7 +19,6 @@
 -(NSArray *)scheduledLocalNotificationsCache;
 -(void)refreshScheduledLocalNotificationsCache;
 -(void)resetUpdatesToLocalNotificationsCache;
-
 @end
 
 

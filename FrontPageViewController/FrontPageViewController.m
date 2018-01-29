@@ -9,7 +9,7 @@
 #import "FrontPageViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import <CoreGraphics/CoreGraphics.h>
-#import <CydiaSubstrate/CydiaSubstrate.h>
+#import "substrate.h"
 #import <CoreFoundation/CoreFoundation.h>
 #import <EventKit/EventKit.h>
 
@@ -121,7 +121,9 @@ void deviceUnlock (CFNotificationCenterRef center,FrontPageViewController * obse
 }
 void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
     [observer showMenu];
-    [observer pressHomeButton];
+    if(deviceVersion < 11){
+        [observer pressHomeButton];
+    }
 }
 
 -(void)pressHomeButton{
@@ -244,7 +246,7 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    NSLog(@"FPPlus View Did load");
     [self setScreenIsOn:YES];
     
     if(!store){
@@ -488,7 +490,11 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
 
 //opens app
 -(void)openApp:(NSString *)bundle{
+    @try{
     [[objc_getClass("UIApplication") sharedApplication] launchApplicationWithIdentifier:bundle suspended:NO];
+    }@catch(NSException* err){
+        NSLog(@"FPPlus Launch Error%@", err);
+    }
 }
 
 //manually update switcher
@@ -853,7 +859,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 
 -(void)startEverything{
 
-    
+    @try{
     bool system = [[_frontPageThemeSettings objectForKey:@"usessysteminfo"]boolValue];
     bool battery = [[_frontPageThemeSettings objectForKey:@"usesbatteryinfo"]boolValue];
     bool statusbar = [[_frontPageThemeSettings objectForKey:@"usesstatusbarinfo"]boolValue];
@@ -917,6 +923,9 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     
     [self checkPendingNotifications];
     [self loadReminders];
+    }@catch(NSException * err){
+        NSLog(@"FPPlus %@", err);
+    }
 }
 
 #pragma mark - CollectionView
@@ -1004,6 +1013,9 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 
     }else{
         imageView.frame = CGRectMake(0,0,self.view.frame.size.width/3 - 25, self.view.frame.size.height/4);
+        if(self.view.frame.size.height/4 == 203){
+            imageView.frame = CGRectMake(0,0,self.view.frame.size.width/3 - 25, self.view.frame.size.height/4 - 20); //iPhoneX
+        }
     }
     
     NSString *localPath = [NSString stringWithFormat:@"var/mobile/Library/FrontPage/%@/screenshot.jpg", _themeArray[indexPath.row]];
@@ -1028,6 +1040,8 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath{
     if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
         return CGSizeMake(320/2, 569/2);
+    }else if(self.view.frame.size.height/4 == 203){
+        return CGSizeMake(self.view.frame.size.width/3 - 20, self.view.frame.size.height/4 - 20);
     }else{
         return CGSizeMake(self.view.frame.size.width/3 - 20, self.view.frame.size.height/4);
     }
@@ -1047,8 +1061,11 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     NSURLRequest *request = navigationAction.request;
     NSString *url = [[request URL]absoluteString];
     if ([url hasPrefix:@"frontpage:"]) {
+        
         NSArray *components = [url componentsSeparatedByString:@":"];
         NSString *function = [components objectAtIndex:1];
+        NSLog(@"FPPlus Test function %@", function);
+        NSLog(@"FPPlus Test componetns %@", components);
         @try {
             if([components count] > 2){
                 NSString *func = [NSString stringWithFormat:@"%@:",[components objectAtIndex:1]];
@@ -1066,10 +1083,10 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
                 }
             }
         } @catch (NSException *exception) {
-            NSLog(@"FrontPage - Error in WKWebView Decide Policy %@",exception);
+            NSLog(@"FPPlus - Error in WKWebView Decide Policy %@",exception);
         }
         
-        decisionHandler(WKNavigationActionPolicyCancel);
+        //decisionHandler(WKNavigationActionPolicyCancel);
     }
     decisionHandler(WKNavigationActionPolicyAllow);
 }
@@ -1272,7 +1289,11 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 }
 
 -(void)opensearch{
-    [[objc_getClass("SBSearchGesture") sharedInstance] revealAnimated:YES];
+    if(deviceVersion >= 11){
+        [[[objc_getClass("SBIconController") sharedInstance] searchGesture] revealAnimated:YES];
+    }else{
+        [[objc_getClass("SBSearchGesture") sharedInstance] revealAnimated:YES];
+    }
 }
 
 

@@ -57,7 +57,11 @@
     }
 
     if(deviceVersion >= 9.0){
-        switcherApps = [[objc_getClass("SBAppSwitcherModel") sharedInstance] mainSwitcherDisplayItems];
+        if ([[objc_getClass("SBAppSwitcherModel") sharedInstance] respondsToSelector:@selector(mainSwitcherDisplayItems)]) {
+            switcherApps = [[objc_getClass("SBAppSwitcherModel") sharedInstance] mainSwitcherDisplayItems];
+        }else{
+            switcherApps = nil;
+        }
     }
     
     

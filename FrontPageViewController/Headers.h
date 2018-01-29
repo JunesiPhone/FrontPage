@@ -119,13 +119,19 @@
 - (BOOL)changeTrack:(int)arg1;
 @end
 
-@interface SBIconController : UIViewController
+@interface SBSearchGesture : NSObject
+- (void)revealAnimated:(_Bool)arg1;
+@end
+@interface SBIconController : UIViewController{
+    SBSearchGesture *_searchGesture;
+}
 +(instancetype)sharedInstance;
 - (id)rootIconListAtIndex:(long long)arg1;
 - (id)dockListView;
 - (id)contentView;
 - (id)model;
 @property (nonatomic, retain) UIView* contentView;
+@property(readonly, nonatomic) SBSearchGesture *searchGesture;
 @end
 
 @interface IWWidgetsPopup : UIViewController {
@@ -135,10 +141,6 @@
 -(id)init;
 @end
 
-
-@interface SBSearchGesture : NSObject
--(void)revealAnimated:(BOOL)arg1;
-@end
 
 
 //@interface MPUNowPlayingController : NSObject

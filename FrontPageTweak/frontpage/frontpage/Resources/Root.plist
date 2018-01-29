@@ -131,20 +131,6 @@
 			<key>defaults</key>
 			<string>com.junesiphone.frontpage</string>
 			<key>key</key>
-			<string>LSStat</string>
-			<key>label</key>
-			<string>Hide LS Statusbar</string>
-			<key>PostNotification</key>
-			<string>com.junesiphone.frontpage/preferences.changed</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>default</key>
-			<false/>
-			<key>defaults</key>
-			<string>com.junesiphone.frontpage</string>
-			<key>key</key>
 			<string>hideDock</string>
 			<key>label</key>
 			<string>Hide Dock</string>

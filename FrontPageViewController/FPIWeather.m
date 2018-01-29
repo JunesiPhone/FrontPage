@@ -9,7 +9,7 @@
 #import "FPIWeather.h"
 #import <objc/runtime.h>
 #import "Weather.h"
-#import <CydiaSubstrate/CydiaSubstrate.h>
+//#import <CydiaSubstrate/CydiaSubstrate.h>
 
 #define deviceVersion [[[UIDevice currentDevice] systemVersion] floatValue]
 
@@ -79,12 +79,13 @@ City * city;
 // Thanks to Andrew Wiik & Matchstic for this function.
 
 +(NSString*)nameForCondition:(int)condition {
-    MSImageRef weather = MSGetImageByName("/System/Library/PrivateFrameworks/Weather.framework/Weather");
-    
-    CFStringRef *_weatherDescription = (CFStringRef*)MSFindSymbol(weather, "_WeatherDescription") + condition;
-    NSString *cond = (__bridge id)*_weatherDescription;
-    
-    return [[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/Weather.framework"] localizedStringForKey:cond value:@"" table:@"WeatherFrameworkLocalizableStrings"];
+//    MSImageRef weather = MSGetImageByName("/System/Library/PrivateFrameworks/Weather.framework/Weather");
+//
+//    CFStringRef *_weatherDescription = (CFStringRef*)MSFindSymbol(weather, "_WeatherDescription") + condition;
+//    NSString *cond = (__bridge id)*_weatherDescription;
+//
+//    return [[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/Weather.framework"] localizedStringForKey:cond value:@"" table:@"WeatherFrameworkLocalizableStrings"];
+    return @"test";
 }
 
 +(void) sendDataToWebWithCity: (City *) city withObserver: (FrontPageViewController *) observer{

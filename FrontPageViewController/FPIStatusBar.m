@@ -79,7 +79,7 @@
                 return [TM operatorName];
                 break;
             case 1:
-                return [NSNumber numberWithInt:[TM signalStrength]];
+                return 0; //[NSNumber numberWithInt:[TM signalStrength]];
                 break;
             case 2:
                 return [NSNumber numberWithInt:[TM signalStrengthBars]];

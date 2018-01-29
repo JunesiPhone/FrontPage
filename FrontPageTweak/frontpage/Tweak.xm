@@ -548,6 +548,7 @@ static void loadFrontPage(){
 			this stops that.
 		*/
 		- (void)setForegroundColor:(id)arg1 animationParameters:(id)arg2{
+			NSLog(@"FPStatus setForegroundColor");
 			UIApplication *sbapp = [objc_getClass("UIApplication") sharedApplication];
 			SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
 			UIView* statusbar = [sbapp statusBar];
@@ -570,6 +571,7 @@ static void loadFrontPage(){
 	%end
 	%hook UIStatusBarStyleAttributes //Helps with a smooth transition from app to sb
 		- (double) foregroundAlpha{
+			NSLog(@"FPStatus setForegroundAlpha");
 			double alpha = 1.0;
 				if(SBStat || LSStat){
 					UIApplication *onSB = [objc_getClass("UIApplication") sharedApplication];
@@ -591,34 +593,46 @@ static void loadFrontPage(){
 	%end
 %end
 
+
+static void toggleStatusBariOS11(UIStatusBar *statusbar, bool hide){
+	for(UIView* view in statusbar.subviews){
+			view.hidden = hide;
+	}
+}
+
 %hook SpringBoard
 -(void)applicationDidFinishLaunching:(id)application{
     %orig;
-    	%init(statusbarHider);
-    	%init(effect_group);
-
-    loaded = YES;
-    if(enabled){
-    	loadFrontPage();
-      	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingapps"), NULL, NULL, true);
-    }
 }
 
+
+//[statusBar setForegroundAlpha:0 animationParameters:animationParams];
 -(void)frontDisplayDidChange:(id)arg1{
 	hideShowItems();
     %orig;
 }
 -(long long)_frontMostAppOrientation{
-	goHideDock();
+	//goHideDock();
 	return %orig;
 }
 
 - (_Bool)isShowingHomescreen{
 	bool isShowing = %orig;
+	%init(statusbarHider);
+    %init(effect_group);
+
+    UIStatusBar *statusBar=[[UIApplication sharedApplication] statusBar];
 	if(isShowing && SBStat){
-		UIStatusBar *statusBar=[[UIApplication sharedApplication] statusBar];
-		[statusBar setForegroundColor:color];
+		toggleStatusBariOS11(statusBar, YES);
+	}else{
+		toggleStatusBariOS11(statusBar, NO);
 	}
+
+	loaded = YES;
+    if(enabled){
+    	loadFrontPage();
+      	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingapps"), NULL, NULL, true);
+    }
 	return %orig;
 }
 %end

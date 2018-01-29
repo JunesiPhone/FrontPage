@@ -161,8 +161,10 @@
 @interface SBRootFolderView : UIView
 @end
 
-extern "C" Boolean _AXSReduceMotionEnabled();
-extern "C" void _AXSSetReduceMotionEnabled(BOOL enabled);
+//extern "C" Boolean _AXSReduceMotionEnabled();
+//extern "C" void _AXSSetReduceMotionEnabled(BOOL enabled);
+
+static float deviceVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
 
 static NSString *nsDomainString = @"com.junesiphone.frontpage";
 static NSString *nsNotificationString = @"com.junesiphone.frontpage/preferences.changed";
@@ -318,7 +320,10 @@ static void hideShowItems(){
 	}
 %end
 
-
+static void showRespringAlert(){
+	NSLog(@"FPRespring called");
+	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.alertrespring"), NULL, NULL, true);
+}
 static void disableFrontPage(){
 	[insView removeFromSuperview];
 	insView = nil;
@@ -347,13 +352,18 @@ static void disableFrontPage(){
 	 goShowIcons();
 	 goShowDots();
 	 goShowDock();
-	_AXSSetReduceMotionEnabled(NO);
-	[[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
+	 if(deviceVersion < 11){
+	 	[[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
+	 }else{
+	 	showRespringAlert();
+	 }
+	//_AXSSetReduceMotionEnabled(NO);
+	//[[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
 }
 
 //topViewSB = ((SBIconController*)[%c(SBIconController) sharedInstance]).contentView;
 static void loadFrontPage(){
-
+	NSLog(@"FPStatus loading");
 	if(!applied){
 		if((SBIconController*)[%c(SBIconController) sharedInstance]){
     		/*
@@ -391,7 +401,7 @@ static void loadFrontPage(){
 				[topViewSB sendSubviewToBack:insView];
 			}else{
 				[topViewSB bringSubviewToFront:insView];
-				_AXSSetReduceMotionEnabled(YES);
+				//_AXSSetReduceMotionEnabled(YES);
 			}
 			applied = YES;
 		}
@@ -469,51 +479,51 @@ static void loadFrontPage(){
 %end
 
 //Animations with Reduce Motion on. //Found hooks https://github.com/greenywd/NoMotion/blob/master/Tweak.xm
-%group effect_group
-	%hook _UIMotionEffectEngine
-	+ (BOOL)_motionEffectsSupported{
-		if(top){
-			return YES;
-		}else{
-			return %orig;
-		}
-	}
+// %group effect_group
+// 	%hook _UIMotionEffectEngine
+// 	+ (BOOL)_motionEffectsSupported{
+// 		if(top){
+// 			return YES;
+// 		}else{
+// 			return %orig;
+// 		}
+// 	}
 
-	+ (BOOL)_motionEffectsEnabled{
-	    if(top){
-			return YES;
-		}else{
-			return %orig;
-		}
-	}
-	%end
+// 	+ (BOOL)_motionEffectsEnabled{
+// 	    if(top){
+// 			return YES;
+// 		}else{
+// 			return %orig;
+// 		}
+// 	}
+// 	%end
 
-	%hook UIView
-	+ (BOOL)_shouldEnableUIKitDefaultParallaxEffects{
-	    if(top){
-			return YES;
-		}else{
-			return %orig;
-		}
-	}
+// 	%hook UIView
+// 	+ (BOOL)_shouldEnableUIKitDefaultParallaxEffects{
+// 	    if(top){
+// 			return YES;
+// 		}else{
+// 			return %orig;
+// 		}
+// 	}
 
-	+ (BOOL)_motionEffectsEnabled{
-	    if(top){
-			return YES;
-		}else{
-			return %orig;
-		}
-	}
+// 	+ (BOOL)_motionEffectsEnabled{
+// 	    if(top){
+// 			return YES;
+// 		}else{
+// 			return %orig;
+// 		}
+// 	}
 
-	+ (BOOL)_motionEffectsSupported{
-	    if(top){
-			return YES;
-		}else{
-			return %orig;
-		}
-	}
-	%end
-%end //effect_group
+// 	+ (BOOL)_motionEffectsSupported{
+// 	    if(top){
+// 			return YES;
+// 		}else{
+// 			return %orig;
+// 		}
+// 	}
+// 	%end
+// %end //effect_group
 
 /* End Switcher Updates */
 
@@ -541,57 +551,57 @@ static void loadFrontPage(){
 // 	        }
 // }
 
-%group statusbarHider
-	%hook UIStatusBar
-		/*
-			iOS10 if you have sb set to hide, but open app, go to ls, then unlock and close the app the sb will show
-			this stops that.
-		*/
-		- (void)setForegroundColor:(id)arg1 animationParameters:(id)arg2{
-			NSLog(@"FPStatus setForegroundColor");
-			UIApplication *sbapp = [objc_getClass("UIApplication") sharedApplication];
-			SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
-			UIView* statusbar = [sbapp statusBar];
-    		UIStatusBarForegroundView *foregroundView = MSHookIvar<UIStatusBarForegroundView *>(statusbar, "_foregroundView");
-			NSString *ckBundle = [[sbapp _accessibilityFrontMostApplication] bundleIdentifier];
-			BOOL onLS = [lsMan isUILocked];
-	        BOOL onSB = ckBundle == nil ? YES : NO;
-	        if(SBStat && onSB && !onLS){
-	        	arg1 = [UIColor clearColor];
-				[foregroundView setHidden:YES];
-				foregroundView.alpha = 0;
-	        }else{
-	        	if(LSStat && onLS){
-					[foregroundView setHidden:YES];
-					foregroundView.alpha = 0;
-				}
-	        }
-			%orig;
-		}
-	%end
-	%hook UIStatusBarStyleAttributes //Helps with a smooth transition from app to sb
-		- (double) foregroundAlpha{
-			NSLog(@"FPStatus setForegroundAlpha");
-			double alpha = 1.0;
-				if(SBStat || LSStat){
-					UIApplication *onSB = [objc_getClass("UIApplication") sharedApplication];
-					if(onSB != nil){
-							NSString *ckBundle = [[onSB _accessibilityFrontMostApplication] bundleIdentifier];
-							SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
-							BOOL onSB = ckBundle == nil ? YES : NO;
-							BOOL onLS = [lsMan isUILocked];
-							if(SBStat && onSB && !onLS){
-								alpha = 0.0;
-							}
-							if(LSStat && onLS){
-								alpha = 0.0;
-							}
-					    }
-					 }
-			return alpha;
-		}
-	%end
-%end
+// %group statusbarHider
+// 	%hook UIStatusBar
+// 		/*
+// 			iOS10 if you have sb set to hide, but open app, go to ls, then unlock and close the app the sb will show
+// 			this stops that.
+// 		*/
+// 		- (void)setForegroundColor:(id)arg1 animationParameters:(id)arg2{
+// 			NSLog(@"FPStatus setForegroundColor");
+// 			UIApplication *sbapp = [objc_getClass("UIApplication") sharedApplication];
+// 			SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
+// 			UIView* statusbar = [sbapp statusBar];
+//     		UIStatusBarForegroundView *foregroundView = MSHookIvar<UIStatusBarForegroundView *>(statusbar, "_foregroundView");
+// 			NSString *ckBundle = [[sbapp _accessibilityFrontMostApplication] bundleIdentifier];
+// 			BOOL onLS = [lsMan isUILocked];
+// 	        BOOL onSB = ckBundle == nil ? YES : NO;
+// 	        if(SBStat && onSB && !onLS){
+// 	        	arg1 = [UIColor clearColor];
+// 				[foregroundView setHidden:YES];
+// 				foregroundView.alpha = 0;
+// 	        }else{
+// 	        	if(LSStat && onLS){
+// 					[foregroundView setHidden:YES];
+// 					foregroundView.alpha = 0;
+// 				}
+// 	        }
+// 			%orig;
+// 		}
+// 	%end
+// 	%hook UIStatusBarStyleAttributes //Helps with a smooth transition from app to sb
+// 		- (double) foregroundAlpha{
+// 			NSLog(@"FPStatus setForegroundAlpha");
+// 			double alpha = 1.0;
+// 				if(SBStat || LSStat){
+// 					UIApplication *onSB = [objc_getClass("UIApplication") sharedApplication];
+// 					if(onSB != nil){
+// 							NSString *ckBundle = [[onSB _accessibilityFrontMostApplication] bundleIdentifier];
+// 							SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
+// 							BOOL onSB = ckBundle == nil ? YES : NO;
+// 							BOOL onLS = [lsMan isUILocked];
+// 							if(SBStat && onSB && !onLS){
+// 								alpha = 0.0;
+// 							}
+// 							if(LSStat && onLS){
+// 								alpha = 0.0;
+// 							}
+// 					    }
+// 					 }
+// 			return alpha;
+// 		}
+// 	%end
+// %end
 
 
 static void toggleStatusBariOS11(UIStatusBar *statusbar, bool hide){
@@ -618,8 +628,9 @@ static void toggleStatusBariOS11(UIStatusBar *statusbar, bool hide){
 
 - (_Bool)isShowingHomescreen{
 	bool isShowing = %orig;
-	%init(statusbarHider);
-    %init(effect_group);
+
+	//%init(statusbarHider);
+    //%init(effect_group);
 
     UIStatusBar *statusBar=[[UIApplication sharedApplication] statusBar];
 	if(isShowing && SBStat){
@@ -632,7 +643,7 @@ static void toggleStatusBariOS11(UIStatusBar *statusbar, bool hide){
     if(enabled){
     	loadFrontPage();
       	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingapps"), NULL, NULL, true);
-    }
+     }
 	return %orig;
 }
 %end
@@ -846,7 +857,7 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
 	}
 
 	if(enabled){
-		_AXSSetReduceMotionEnabled(YES);
+		//_AXSSetReduceMotionEnabled(YES);
 		if (!applied) {
 	        if (loaded) {
 	            loadFrontPage();

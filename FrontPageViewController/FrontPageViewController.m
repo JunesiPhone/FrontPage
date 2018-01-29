@@ -240,7 +240,43 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
       }
 }
 
+- (UIViewController *)topViewController{
+    return [self topViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+}
 
+- (UIViewController *)topViewController:(UIViewController *)rootViewController{
+    if (rootViewController.presentedViewController == nil) {
+        return rootViewController;
+    }
+    
+    if ([rootViewController.presentedViewController isMemberOfClass:[UINavigationController class]]) {
+        UINavigationController *navigationController = (UINavigationController *)rootViewController.presentedViewController;
+        UIViewController *lastViewController = [[navigationController viewControllers] lastObject];
+        return [self topViewController:lastViewController];
+    }
+    
+    UIViewController *presentedViewController = (UIViewController *)rootViewController.presentedViewController;
+    return [self topViewController:presentedViewController];
+}
+
+void alertrespring (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
+    NSLog(@"FPRespring called2");
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Recommended"
+                                                                   message:@"Requires Respring"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"Respring Now" style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * action) {
+                                                              [observer respring];
+                                                          }];
+    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"I'll risk it" style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * action) {}];
+    
+    [alert addAction:defaultAction];
+    [alert addAction:cancelAction];
+    [[observer topViewController] presentViewController:alert animated:YES completion:nil];
+    
+}
 
 #pragma mark - View Did Load
 
@@ -267,6 +303,13 @@ void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer
                                     (__bridge const void *)(observer),
                                     (CFNotificationCallback)iconUnlock,
                                     CFSTR("com.junesiphone.frontpage.iconUnlock"),
+                                    NULL,
+                                    CFNotificationSuspensionBehaviorDeliverImmediately
+                                    );
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
+                                    (__bridge const void *)(observer),
+                                    (CFNotificationCallback)alertrespring,
+                                    CFSTR("com.junesiphone.frontpage.alertrespring"),
                                     NULL,
                                     CFNotificationSuspensionBehaviorDeliverImmediately
                                     );
@@ -993,6 +1036,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     }
     //[[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
     [self unregisterNotifications]; //hopefully unregistering notifications that aren't registered isn't an issue.
+    [self pressHomeButton];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{

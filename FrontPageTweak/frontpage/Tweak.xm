@@ -607,8 +607,34 @@ static void loadFrontPage(){
 static void toggleStatusBariOS11(UIStatusBar *statusbar, bool hide){
 	for(UIView* view in statusbar.subviews){
 			view.hidden = hide;
+			if(hide){
+				view.alpha = 0;
+			}else{
+				view.alpha = 1;
+			}
 	}
 }
+
+%hook SBLockScreenManager
+
+//iOS11 iP7 not hiding statusbar until app is closed.
+- (void)lockScreenViewControllerDidDismiss{ //iOS11
+	%orig;
+	UIStatusBar *statusBar=[[UIApplication sharedApplication] statusBar];
+	if(SBStat){
+		toggleStatusBariOS11(statusBar, YES);
+	}else{
+		toggleStatusBariOS11(statusBar, NO);
+	}
+}
+
+//iOS11 iP7 not hiding statusbar until app is closed.
+- (void)lockScreenViewControllerWillPresent{
+	%orig;
+	UIStatusBar *statusBar=[[UIApplication sharedApplication] statusBar];
+	toggleStatusBariOS11(statusBar, NO);
+}
+%end
 
 %hook SpringBoard
 -(void)applicationDidFinishLaunching:(id)application{

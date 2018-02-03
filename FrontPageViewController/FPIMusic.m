@@ -67,6 +67,8 @@
         iconImage = [NSString stringWithFormat:@"data:image/png;base64,%@", encodedString];
     }
     
+    
+    
     if(iconImage && playin){
         [musicInfo setValue:iconImage forKey:@"albumArt"];
     }else{

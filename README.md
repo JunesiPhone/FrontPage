@@ -3,6 +3,8 @@ FrontPage
 
 Applies a WKWebview to the homescreen. Along with the webview, it calls code within the html to supply iOS info such as battery, music, apps, switcher, signal, wifi, notifications, and other info.
 
+Note: FrontPage's source code is provided for reference purposes only. Modification and redistribution are *not* permitted.
+
 iOS to WebView Calls
 ----
 
@@ -13,7 +15,7 @@ A compiled version can be found on my Cydia repo <a href="http://junesiphone.com
 WebView to iOS Calls
 ----
 
-Calls sent from the html to the tweak is handle by setting window.location = 'frontpage:something' the tweak will check if the string contains frontpage and then will try to forward it to any method inside. 
+Calls sent from the html to the tweak is handle by setting window.location = 'frontpage:something' the tweak will check if the string contains frontpage and then will try to forward it to any method inside.
 
 
 window.location = 'frontpage:opennc';

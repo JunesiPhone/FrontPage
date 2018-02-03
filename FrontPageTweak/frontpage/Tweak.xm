@@ -655,6 +655,9 @@ static void toggleStatusBariOS11(UIStatusBar *statusbar, bool hide){
 - (_Bool)isShowingHomescreen{
 	bool isShowing = %orig;
 
+	if(isShowing){
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingmusic"), NULL, NULL, true);
+	}
 	//%init(statusbarHider);
     //%init(effect_group);
 
@@ -718,9 +721,16 @@ static MPUNowPlayingController *globalMPUNowPlaying;
 
 %end
 
-
+// MRMediaRemoteGetNowPlayingInfo(dispatch_get_main_queue(), ^(CFDictionaryRef information) {
+//         NSLog(@"FPMusic We got the information: %@", information);
+// 	});
 
 %hook SBMediaController
+- (void)_mediaRemoteNowPlayingInfoDidChange:(id)arg1{
+	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingmusic"), NULL, NULL, true);
+	return %orig;
+}
+
 - (void)_nowPlayingInfoChanged{
 	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingmusic"), NULL, NULL, true);
 	return %orig;

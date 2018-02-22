@@ -32,6 +32,7 @@
 #import "FPIAlarm.h"
 #import "FPIApp.h"
 #import "FPIMemory.h"
+#import "browserVC.h"
 #import "Headers.h"
 #import <AudioToolbox/AudioServices.h>
 #import <sys/utsname.h>
@@ -535,6 +536,18 @@ void alertrespring (CFNotificationCenterRef center,FrontPageViewController * obs
 -(void)openApp:(NSString *)bundle{
     @try{
     [[objc_getClass("UIApplication") sharedApplication] launchApplicationWithIdentifier:bundle suspended:NO];
+//        UIStatusBar *statusBar=[[UIApplication sharedApplication] statusBar]; //remove statusbar
+//        if(statusBar){
+//            for(UIView* view in statusBar.subviews){
+//                if([view isKindOfClass:[_UIStatusBar class]]){
+//                    [view removeFromSuperview];
+//                    dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.5);
+//                    dispatch_after(delay, dispatch_get_main_queue(), ^(void){
+//                        [statusBar addSubview:view]; //add back once we are in app
+//                    });
+//                }
+//            }
+//        }
     }@catch(NSException* err){
         NSLog(@"FPPlus Launch Error%@", err);
     }
@@ -687,6 +700,10 @@ void alertrespring (CFNotificationCenterRef center,FrontPageViewController * obs
             [self setAlarmsPending:NO];
             [self injectAlarmIsNotification:YES];
         }
+        if([self isAppsNewPending]){
+            [self setAppsNewPending:NO];
+            [self injectNewAppsIsNotification:YES];
+        }
 
     }
 }
@@ -715,6 +732,11 @@ void newAppUpdated(CFNotificationCenterRef center,FrontPageViewController * obse
 void updatingApps(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
     [FPIApps saveAllIconImagesWithObserver:observer];
     [observer injectAppsIsNotification:YES];
+    [observer checkPendingNotifications];
+}
+void updatingInstalledApps(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    [FPIApps saveAllIconImagesWithObserver:observer];
+    [observer injectNewAppsIsNotification:YES];
     [observer checkPendingNotifications];
 }
 void updatingMusic(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
@@ -836,6 +858,27 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     }
 }
 
+-(void)injectNewAppsIsNotification: (bool)notification{
+    if(notification){
+        if(![self isScreenOn] || [self checkIfInApp]){
+            [self setAppsNewPending:YES];
+            return;
+        }
+    }
+    NSArray* combinedInfo = [FPIApps appsInfo];
+    if([combinedInfo count] == 2){
+        NSDictionary* appsInfo = combinedInfo[0];
+        NSDictionary* bundleInfo = combinedInfo[1];
+        [self convertDictToJSON:appsInfo withName:@"apps"];
+        [self convertDictToJSON:bundleInfo withName:@"bundle"];
+        
+        dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.5);
+        dispatch_after(delay, dispatch_get_main_queue(), ^(void){
+            [self callJSFunction:@"appsInstalled()"];
+        });
+    }
+}
+
 -(void)injectSingleApp{
     if(![self isScreenOn] || [self checkIfInApp]){
         [self setAppPending:YES];
@@ -942,7 +985,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)updatingApps,CFSTR("com.junesiphone.frontpage.updatingapps"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
         
-        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)updatingApps,CFSTR("com.junesiphone.frontpage.newappinstalled"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)updatingInstalledApps,CFSTR("com.junesiphone.frontpage.newappinstalled"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
     }
     if(notifications){
         [self injectNotificationsIsNotification:NO];
@@ -1154,6 +1197,23 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         completionHandler();
     }
 }
+- (void)webView:(WKWebView *)webView runJavaScriptConfirmPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completionHandler{
+//    NSString *hostString = webView.URL.host;
+//    NSString *sender = [NSString stringWithFormat:@"%@", hostString];
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:message message:@"" preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        completionHandler(YES);
+    }]];
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        completionHandler(NO);
+    }]];
+    if ([UIApplication sharedApplication].keyWindow.rootViewController.isViewLoaded && [UIApplication sharedApplication].keyWindow.rootViewController.view.window) {
+        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+    } else {
+        completionHandler(NO);
+    }
+}
 
 -(void)loadWebView:(NSString *)themeName{
     
@@ -1276,7 +1336,9 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 
 -(NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script{
     //NSLog(@"FrontPage Calling Script %@", script);
-    [_themeView evaluateJavaScript:script completionHandler:^(id object, NSError *error) { }];
+    [_themeView evaluateJavaScript:script completionHandler:^(id object, NSError *error) {
+
+    }];
     return @"Done";
 }
 //-(NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script{
@@ -1303,8 +1365,10 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 //    if([function isEqualToString:@"loadBattery()"]){
 //        function = [NSString stringWithFormat:@"try{loadBattery()}catch(err){document.body.innerHTML = err;document.body.style.opacity = 1;}"];
 //    }
-    [self stringByEvaluatingJavaScriptFromString:function];
+
+   [self stringByEvaluatingJavaScriptFromString:function];
 }
+
 
 #pragma mark - Calls From Webview
 
@@ -1365,7 +1429,11 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     AudioServicesPlayAlertSoundWithCompletion(kSystemSoundID_Vibrate, nil);
 }
 -(void)opencc{
-    [[objc_getClass("SpringBoard") sharedApplication] _runControlCenterBringupTest];
+    if(deviceVersion < 11){
+        [[objc_getClass("SpringBoard") sharedApplication] _runControlCenterBringupTest];
+    }else{
+        [[objc_getClass("SBControlCenterController") sharedInstance] presentAnimated:YES];
+    }
 }
 -(void)opennc{
     [[objc_getClass("SpringBoard") sharedApplication] _runNotificationCenterBringupTest];
@@ -1474,4 +1542,21 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     NSLog(@"FrontPage - did receive memory warning");
 }
 
+
+-(void)loadIconBrowser{
+    browserVC * vc = [[browserVC alloc] init];
+    vc.theme = _themeView;
+    [self presentViewController:vc animated:YES completion:nil];
+}
+
+//-(void)sendIconFromBrowser:(NSString *)icon{
+//    NSLog(@"FPTest icon received %@", icon);
+//    dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 4);
+//    dispatch_after(delay, dispatch_get_main_queue(), ^(void){
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [self callJSFunction:icon];
+//        });
+//    });
+//    
+//}
 @end

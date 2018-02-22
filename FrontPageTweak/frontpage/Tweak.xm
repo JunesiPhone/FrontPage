@@ -3,6 +3,7 @@
 #import "substrate.h"
 
 
+
 @interface NSUserDefaults (FrontPage)
 - (id)objectForKey:(NSString *)key inDomain:(NSString *)domain;
 - (void)setObject:(id)value forKey:(NSString *)key inDomain:(NSString *)domain;
@@ -34,6 +35,7 @@
 -(BOOL)isFading;
 @end
 
+
 @interface UIApplication (edited)
 -(id)_accessibilityFrontMostApplication;
 - (id)statusBar;
@@ -44,17 +46,6 @@
 //   - (void)setHidden:(BOOL)arg1;
 // @end
 
-
-@interface UIStatusBarForegroundView : UIView
-@end
-
-@interface UIStatusBar : UIView{
-
-    UIStatusBarForegroundView *_foregroundView;
-}
- -(void)setForegroundColor:(UIColor *)arg1;
-  - (void)setHidden:(BOOL)arg1;
-@end
 
 
 
@@ -170,8 +161,6 @@ static NSString *nsDomainString = @"com.junesiphone.frontpage";
 static NSString *nsNotificationString = @"com.junesiphone.frontpage/preferences.changed";
 static BOOL enabled = NO;
 static BOOL top = NO;
-static bool SBStat = NO;
-static bool LSStat = NO;
 
 static BOOL hideIcons = NO;
 static BOOL hideDock = NO;
@@ -237,6 +226,21 @@ static void goShowDock(){
 	}
 	//hidingDock = NO;
 }
+
+%hook SBIconModel
+-(BOOL)isIconVisible:(id)arg1{
+	// if(deviceVersion >= 11){ //this will hide apps in the switcher as well
+	// 	if(hideIcons){
+	// 		return NO;
+	// 	}else{
+	// 		return %orig;
+	// 	}
+	// }else{
+	// 	return %orig;
+	// }
+	return %orig;
+}
+%end
 
 // %hook SBDockView
 // 	-(void)setBackgroundAlpha:(double)arg1{
@@ -333,15 +337,11 @@ static void disableFrontPage(){
 	instance = nil;
 	enabled = NO;
 	top = 0;
-	SBStat = NO;
-	LSStat = NO;
 	hideDock = NO;
 	hideIcons = NO;
 	hideDots = NO;
 
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"enabled" inDomain:nsDomainString];
-	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"LSStat" inDomain:nsDomainString];
-	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"SBStat" inDomain:nsDomainString];
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"top" inDomain:nsDomainString];
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"hideDots" inDomain:nsDomainString];
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"hideDock" inDomain:nsDomainString];
@@ -445,11 +445,55 @@ static void loadFrontPage(){
 	y can be set to fromtop:100, frombottom:100, fromleft:100, fromright:100 or center. Width can be auto or an int, same for height
 */
 
+
+
+%hook SBIconController
+
+- (void)popToCurrentRootIconListWhenPossible{ //don't need relayout if icons are hidden
+	if(!hideIcons){
+		%orig;
+	}
+}
+- (void)popToCurrentRootIconList{ //don't need relayout if icons are hidden
+	if(!hideIcons){
+		%orig;
+	}
+}
+- (void)popExpandedIconFromLocation:(long long)arg1 withTransitionRequest:(id)arg2 animated:(_Bool)arg3 completion:(id)arg4{ //don't need relayout if icons are hidden
+	if(!hideIcons){
+		%orig;
+	}
+}
+/* causes issues on iOS10 */
+
+// - (void)popExpandedIconWithTransitionRequest:(id)arg1 animated:(_Bool)arg2 completion:(id)arg3{ //don't need relayout if icons are hidden
+// 	if(!hideIcons){
+// 		%orig;
+// 	}
+// }
+
+- (void)layoutMonitor:(id)arg1 didUpdateDisplayLayout:(id)arg2 withContext:(id)arg3{ //don't need relayout if icons are hidden
+	if(!hideIcons){
+		%orig;
+	}
+}
+
+
+- (_Bool)isDisplayingIcon:(id)arg1 inLocation:(long long)arg2{ //stops animation to icon when app is opened or closed
+
+	if(hideIcons){
+		return NO;
+	}else{
+		return %orig;
+	}
+}
+%end
+
 %hook SBIconScrollView
 - (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
 	if(!top && applied){
-		bool isSomethingToTapInOurView;
-		bool isAnIconBeingTapped;
+		bool isSomethingToTapInOurView = nil;
+		bool isAnIconBeingTapped = nil;
 		for (UIView* subviewInOurs in self.superview.subviews ) {
 			if((UIView*)[subviewInOurs viewWithTag:12345679]){
     			if ( [subviewInOurs hitTest:[self convertPoint:point toView:subviewInOurs] withEvent:event] != nil ) {
@@ -551,90 +595,6 @@ static void loadFrontPage(){
 // 	        }
 // }
 
-// %group statusbarHider
-// 	%hook UIStatusBar
-// 		/*
-// 			iOS10 if you have sb set to hide, but open app, go to ls, then unlock and close the app the sb will show
-// 			this stops that.
-// 		*/
-// 		- (void)setForegroundColor:(id)arg1 animationParameters:(id)arg2{
-// 			NSLog(@"FPStatus setForegroundColor");
-// 			UIApplication *sbapp = [objc_getClass("UIApplication") sharedApplication];
-// 			SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
-// 			UIView* statusbar = [sbapp statusBar];
-//     		UIStatusBarForegroundView *foregroundView = MSHookIvar<UIStatusBarForegroundView *>(statusbar, "_foregroundView");
-// 			NSString *ckBundle = [[sbapp _accessibilityFrontMostApplication] bundleIdentifier];
-// 			BOOL onLS = [lsMan isUILocked];
-// 	        BOOL onSB = ckBundle == nil ? YES : NO;
-// 	        if(SBStat && onSB && !onLS){
-// 	        	arg1 = [UIColor clearColor];
-// 				[foregroundView setHidden:YES];
-// 				foregroundView.alpha = 0;
-// 	        }else{
-// 	        	if(LSStat && onLS){
-// 					[foregroundView setHidden:YES];
-// 					foregroundView.alpha = 0;
-// 				}
-// 	        }
-// 			%orig;
-// 		}
-// 	%end
-// 	%hook UIStatusBarStyleAttributes //Helps with a smooth transition from app to sb
-// 		- (double) foregroundAlpha{
-// 			NSLog(@"FPStatus setForegroundAlpha");
-// 			double alpha = 1.0;
-// 				if(SBStat || LSStat){
-// 					UIApplication *onSB = [objc_getClass("UIApplication") sharedApplication];
-// 					if(onSB != nil){
-// 							NSString *ckBundle = [[onSB _accessibilityFrontMostApplication] bundleIdentifier];
-// 							SBLockScreenManager *lsMan = [objc_getClass("SBLockScreenManager") sharedInstance];
-// 							BOOL onSB = ckBundle == nil ? YES : NO;
-// 							BOOL onLS = [lsMan isUILocked];
-// 							if(SBStat && onSB && !onLS){
-// 								alpha = 0.0;
-// 							}
-// 							if(LSStat && onLS){
-// 								alpha = 0.0;
-// 							}
-// 					    }
-// 					 }
-// 			return alpha;
-// 		}
-// 	%end
-// %end
-
-
-static void toggleStatusBariOS11(UIStatusBar *statusbar, bool hide){
-	for(UIView* view in statusbar.subviews){
-			view.hidden = hide;
-			if(hide){
-				view.alpha = 0;
-			}else{
-				view.alpha = 1;
-			}
-	}
-}
-
-%hook SBLockScreenManager
-
-//iOS11 iP7 not hiding statusbar until app is closed.
-- (void)lockScreenViewControllerDidDismiss{ //iOS11
-	%orig;
-	UIStatusBar *statusBar=[[UIApplication sharedApplication] statusBar];
-	if(SBStat){
-		toggleStatusBariOS11(statusBar, YES);
-	}else{
-		toggleStatusBariOS11(statusBar, NO);
-	}
-}
-
-//iOS11 iP7 not hiding statusbar until app is closed.
-- (void)lockScreenViewControllerWillPresent{
-	%orig;
-	UIStatusBar *statusBar=[[UIApplication sharedApplication] statusBar];
-	toggleStatusBariOS11(statusBar, NO);
-}
-%end
 
 %hook SpringBoard
 -(void)applicationDidFinishLaunching:(id)application{
@@ -660,13 +620,6 @@ static void toggleStatusBariOS11(UIStatusBar *statusbar, bool hide){
 	}
 	//%init(statusbarHider);
     //%init(effect_group);
-
-    UIStatusBar *statusBar=[[UIApplication sharedApplication] statusBar];
-	if(isShowing && SBStat){
-		toggleStatusBariOS11(statusBar, YES);
-	}else{
-		toggleStatusBariOS11(statusBar, NO);
-	}
 
 	loaded = YES;
     if(enabled){
@@ -851,8 +804,6 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
 
 	NSNumber *n = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"enabled" inDomain:nsDomainString];
 	NSNumber *t = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"top" inDomain:nsDomainString];
-	NSNumber *d = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"SBStat" inDomain:nsDomainString];
-	NSNumber *e = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"LSStat" inDomain:nsDomainString];
   	NSNumber *c = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"iconlock" inDomain:nsDomainString];
 
   	NSNumber *dots = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:@"hideDots" inDomain:nsDomainString];
@@ -862,8 +813,6 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
 
 	enabled = (n)? [n boolValue]:NO;
 	top = (t)? [t boolValue]:NO;
-	SBStat = (d)? [d boolValue]:NO;
-	LSStat = (e)? [e boolValue]:NO;
 	iconlock = (c)? [c boolValue]:NO;
 
 	interaction = (inter)? [inter boolValue]:NO;
@@ -915,7 +864,6 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
 
 
 %ctor {
-	%init;
 	notificationCallback(NULL, NULL, NULL, NULL, NULL);
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
 		NULL,

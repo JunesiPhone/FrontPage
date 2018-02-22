@@ -44,6 +44,7 @@
 +(instancetype)sharedInstance;
 -(BOOL)scrollToIconListAtIndex:(int)index animate:(BOOL)animate;
 - (id)model;
+- (_Bool)iconAllowsBadging:(id)arg1;
 @end
 
 
@@ -69,7 +70,12 @@
     @try {
         SBIconController *IC = [objc_getClass("SBIconController") sharedInstance];
         SBIconModel *IM = [IC model];
-        return [IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundleID]] valueForKey:@"badgeValue"];
+        if([IC iconAllowsBadging:IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundleID]]]){
+            return [IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundleID]] valueForKey:@"badgeValue"];
+        }else{
+            return @"0";
+        }
+        
     } @catch (NSException *exception) {
         //write to log
         return 0;

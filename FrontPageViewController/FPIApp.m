@@ -23,6 +23,7 @@
 +(instancetype)sharedInstance;
 -(BOOL)scrollToIconListAtIndex:(int)index animate:(BOOL)animate;
 - (id)model;
+- (_Bool)iconAllowsBadging:(id)arg1;
 @end
 
 
@@ -42,7 +43,17 @@
 +(id)getBadgeForBundleID:(NSString *)bundleID{
     SBIconController *IC = [objc_getClass("SBIconController") sharedInstance];
     SBIconModel *IM = [IC model];
-    return [IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundleID]] valueForKey:@"badgeValue"];
+    NSString* badgeValue = @"";
+    if([IC iconAllowsBadging:IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundleID]]]){
+        if([[IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundleID]] valueForKey:@"badgeValue"] isEqualToString:@"0"]){
+            badgeValue = @"";
+        }else{
+            badgeValue = [IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundleID]] valueForKey:@"badgeValue"];
+        }
+    }else{
+        badgeValue = @"";
+    }
+    return badgeValue;
 }
 
 +(NSString *)appInfo{
@@ -50,7 +61,17 @@
         if([objc_getClass("SBApplicationController") lastBundleName]){
             NSDictionary *app = [objc_getClass("SBApplicationController") lastBundleName];
             NSString *bundle = [app valueForKey:@"bundle"];
-            NSString *value = [app valueForKey:@"value"];
+            NSString *value = @"";
+            SBIconController *IC = [objc_getClass("SBIconController") sharedInstance];
+            SBIconModel *IM = [IC model];
+            if([IC iconAllowsBadging:IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundle]]]){
+                value = [app valueForKey:@"value"];
+                if([value isEqualToString:@"0"]){
+                    value = @"";
+                }
+            }else{
+                value = @"";
+            }
             combined = [NSString stringWithFormat:@"FPI.bundle['%@'].badge = %@;",bundle, value];
         }
     return combined;

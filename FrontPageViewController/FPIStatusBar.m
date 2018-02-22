@@ -93,11 +93,23 @@
     BluetoothManager *BM = [objc_getClass("BluetoothManager") sharedInstance];
     bool v = [BM enabled];
     
+    NSString *freakinWifi = [NSString stringWithFormat:@"%@",[self getWifiInfo:0]];
+    freakinWifi = [[NSString stringWithFormat:@"%@",[self getWifiInfo:0]] stringByReplacingOccurrencesOfString:@"'" withString:@""];
+    
+    NSString *signalName = [self getSignalInfo:0];
+    
+    if([freakinWifi isEqualToString:@"(null)"]){
+        freakinWifi = @"NA";
+    }
+    if([signalName isEqualToString:@""]){
+        signalName = @"NA";
+    }
+    
     NSMutableDictionary *statusBarInfo =[[NSMutableDictionary alloc] init];
-    [statusBarInfo setValue:[self getWifiInfo:0] forKey:@"wifiName"];
+    [statusBarInfo setValue:freakinWifi forKey:@"wifiName"];
     [statusBarInfo setValue:[self getWifiInfo:1] forKey:@"wifiRSSI"];
     [statusBarInfo setValue:[self getWifiInfo:2] forKey:@"wifiBars"];
-    [statusBarInfo setValue:[self getSignalInfo:0] forKey:@"signalName"];
+    [statusBarInfo setValue:signalName forKey:@"signalName"];
     [statusBarInfo setValue:[self getSignalInfo:1] forKey:@"signalStrength"];
     [statusBarInfo setValue:[self getSignalInfo:2] forKey:@"signalBars"];
     [statusBarInfo setValue:[NSNumber numberWithBool:v] forKey:@"bluetoothEnabled"];

@@ -42,13 +42,23 @@
 @property (assign,setter=_setAllowFileAccessFromFileURLs:,nonatomic) BOOL _allowFileAccessFromFileURLs; 
 @end
 
+@interface SBControlCenterController : NSObject
++ (id)sharedInstance;
+- (void)presentAnimated:(_Bool)arg1;
+@end
 
 @interface UIApplication (webview)
 @property (nonatomic, retain, readonly) UIApplication *_accessibilityFrontMostApplication;
 - (BOOL)_openURL:(id)arg1;
 - (void) launchApplicationWithIdentifier: (NSString*)identifier suspended: (BOOL)suspended;
 -(void)_runControlCenterBringupTest;
+-(void)_bringUpControlCenter;
 -(void)_runNotificationCenterBringupTest;
+- (void)_runTodayViewPullDownToSpotlight;
+- (id)statusBar;
+@end
+
+@interface _UIStatusBar : UIView
 @end
 
 @interface SBUIController : NSObject
@@ -141,7 +151,8 @@
 -(id)init;
 @end
 
-
+@interface UIStatusBar : UIView
+@end
 
 //@interface MPUNowPlayingController : NSObject
 //- (void)startUpdating;

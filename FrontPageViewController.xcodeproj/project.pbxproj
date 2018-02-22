@@ -20,6 +20,7 @@
 		BA308B001EE50EB000F407D4 /* FPIFolders.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308AFF1EE50EB000F407D4 /* FPIFolders.m */; };
 		BA308B031EE52E4300F407D4 /* FPIAlarm.m in Sources */ = {isa = PBXBuildFile; fileRef = BA308B021EE52E4300F407D4 /* FPIAlarm.m */; };
 		BA64F0371EF866C90037EB68 /* FPIMemory.m in Sources */ = {isa = PBXBuildFile; fileRef = BA64F0361EF866C90037EB68 /* FPIMemory.m */; };
+		BAC9BDD3203CC55600132E51 /* browserVC.m in Sources */ = {isa = PBXBuildFile; fileRef = BAC9BDD2203CC55600132E51 /* browserVC.m */; };
 		BAF296071ED1FA4D009C6439 /* FrontPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BAF296061ED1FA4D009C6439 /* FrontPageViewController.m */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +52,8 @@
 		BA64F0361EF866C90037EB68 /* FPIMemory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIMemory.m; sourceTree = "<group>"; };
 		BA7515C71ED4A807002E48E0 /* Weather.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Weather.h; sourceTree = "<group>"; };
 		BAADCCBF1F508A9A00745393 /* Headers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Headers.h; sourceTree = "<group>"; };
+		BAC9BDD1203CC55600132E51 /* browserVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = browserVC.h; sourceTree = "<group>"; };
+		BAC9BDD2203CC55600132E51 /* browserVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = browserVC.m; sourceTree = "<group>"; };
 		BAE31C291EDDCEBB00E3B668 /* MediaRemote.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaRemote.h; sourceTree = "<group>"; };
 		BAE31C2A1EDDF9B000E3B668 /* substrate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = substrate.h; sourceTree = "<group>"; };
 		BAF295FC1ED1F9F8009C6439 /* FrontPageViewController.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FrontPageViewController.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -99,6 +102,8 @@
 		BAF295FE1ED1F9F8009C6439 /* FrontPageViewController */ = {
 			isa = PBXGroup;
 			children = (
+				BAC9BDD1203CC55600132E51 /* browserVC.h */,
+				BAC9BDD2203CC55600132E51 /* browserVC.m */,
 				BAF295FF1ED1F9F8009C6439 /* Info.plist */,
 				BAF296051ED1FA4D009C6439 /* FrontPageViewController.h */,
 				BA7515C71ED4A807002E48E0 /* Weather.h */,
@@ -209,6 +214,7 @@
 				BA308AEE1EE4CBEF00F407D4 /* FPISwitcher.m in Sources */,
 				BA308AE51EE4A8D400F407D4 /* FPISystem.m in Sources */,
 				BAF296071ED1FA4D009C6439 /* FrontPageViewController.m in Sources */,
+				BAC9BDD3203CC55600132E51 /* browserVC.m in Sources */,
 				BA64F0371EF866C90037EB68 /* FPIMemory.m in Sources */,
 				BA308B031EE52E4300F407D4 /* FPIAlarm.m in Sources */,
 				BA308AF71EE4DB0F00F407D4 /* FPIWeather.m in Sources */,

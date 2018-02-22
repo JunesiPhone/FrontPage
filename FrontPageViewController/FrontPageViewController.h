@@ -43,6 +43,7 @@
 @property (nonatomic, getter=isSwitcherPending) BOOL switcherPending;
 @property (nonatomic, getter=isAppPending) BOOL appPending;
 @property (nonatomic, getter=isAppsPending) BOOL appsPending;
+@property (nonatomic, getter=isAppsNewPending) BOOL appsNewPending;
 @property (nonatomic, getter=isMusicPending) BOOL musicPending;
 @property (nonatomic, getter=isWeatherPending) BOOL weatherPending;
 @property (nonatomic, getter=isNotificationsPending) BOOL notificationsPending;

@@ -61,16 +61,16 @@
         if([objc_getClass("SBApplicationController") lastBundleName]){
             NSDictionary *app = [objc_getClass("SBApplicationController") lastBundleName];
             NSString *bundle = [app valueForKey:@"bundle"];
-            NSString *value = @"";
+            NSString *value = @"0";
             SBIconController *IC = [objc_getClass("SBIconController") sharedInstance];
             SBIconModel *IM = [IC model];
             if([IC iconAllowsBadging:IM.leafIconsByIdentifier[[NSString stringWithFormat:@"%@",bundle]]]){
                 value = [app valueForKey:@"value"];
                 if([value isEqualToString:@"0"]){
-                    value = @"";
+                    value = @"0";
                 }
             }else{
-                value = @"";
+                value = @"0";
             }
             combined = [NSString stringWithFormat:@"FPI.bundle['%@'].badge = %@;",bundle, value];
         }

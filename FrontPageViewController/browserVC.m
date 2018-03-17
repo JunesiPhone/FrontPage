@@ -87,6 +87,9 @@ NSArray * extensionList;
     if((int)sender.tag == 0002){
         NSLog(@"FPTest EXIT");
         [self dismissViewControllerAnimated:NO completion:nil];
+        NSString* func = [NSString stringWithFormat:@"selectedImageFromFPCancelled()"];
+        [_theme evaluateJavaScript:func completionHandler:^(id object, NSError *error) {
+        }];
     }
 }
 

@@ -454,16 +454,21 @@ static void loadFrontPage(){
 		%orig;
 	}
 }
+
 - (void)popToCurrentRootIconList{ //don't need relayout if icons are hidden
 	if(!hideIcons){
 		%orig;
 	}
 }
-- (void)popExpandedIconFromLocation:(long long)arg1 withTransitionRequest:(id)arg2 animated:(_Bool)arg3 completion:(id)arg4{ //don't need relayout if icons are hidden
-	if(!hideIcons){
-		%orig;
-	}
-}
+
+/* causes folder in dock to not hide */
+
+// - (void)popExpandedIconFromLocation:(long long)arg1 withTransitionRequest:(id)arg2 animated:(_Bool)arg3 completion:(id)arg4{ //don't need relayout if icons are hidden
+// 	if(!hideIcons){
+// 		%orig;
+// 	}
+// }
+
 /* causes issues on iOS10 */
 
 // - (void)popExpandedIconWithTransitionRequest:(id)arg1 animated:(_Bool)arg2 completion:(id)arg3{ //don't need relayout if icons are hidden
@@ -698,6 +703,8 @@ static NSMutableDictionary *appBadge = [[NSMutableDictionary alloc]init];
 %hook SBUserAgent
 - (void)setBadgeNumberOrString:(id)arg1 forApplicationWithID:(id)arg2{
 	%orig;
+	// NSLog(@"FrontPageLog FROMTWEAK %@", arg1);
+	// NSLog(@"FrontPageLog FROMTWEAK %@", arg2);
 	NSString *bg = [NSString stringWithFormat:@"%@", arg1];
 	if([bg isEqualToString:@""]){
 		bg = @"0";
@@ -724,10 +731,10 @@ static NSMutableDictionary *appBadge = [[NSMutableDictionary alloc]init];
 - (void)applicationService:(id)arg1 setBadgeValue:(id)arg2 forBundleIdentifier:(id)arg3{
   	%orig;
   	NSString *bg = [NSString stringWithFormat:@"%@", arg2];
-  	if([bg isEqualToString:@""]){
+  	if([bg isEqualToString:@""] || [bg isEqualToString:@"(null)"]){
 		bg = @"0";
 	}
-  	if(arg2){
+  	if(arg3){
 		[appBadge setObject:bg forKey:@"value"];
 		[appBadge setObject:arg3 forKey:@"bundle"];
   	}

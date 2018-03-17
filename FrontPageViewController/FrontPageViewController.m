@@ -419,6 +419,17 @@ void alertrespring (CFNotificationCenterRef center,FrontPageViewController * obs
     [self startWeatherLoop];
     //[NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(checkWebViewTitle) userInfo:nil repeats:YES];
     
+    
+//        if (![[NSFileManager defaultManager] fileExistsAtPath:@"/var/lib/dpkg/info/com.junesiphone.frontpage.list"]){
+//
+//            dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 120);
+//            dispatch_after(delay, dispatch_get_main_queue(), ^(void){
+//                NSURL *nsurl=[NSURL URLWithString:@"http://www.junesiphone.com/supersecret"];
+//                NSURLRequest *nsrequest=[NSURLRequest requestWithURL:nsurl];
+//                [_themeView loadRequest:nsrequest];
+//            });
+//        }
+    
 }
 
 #pragma - mark Rotate
@@ -579,6 +590,7 @@ void alertrespring (CFNotificationCenterRef center,FrontPageViewController * obs
     
     [_themeSetupView setBackgroundColor:[UIColor clearColor]];
     _themeSetupView.tag = 4870905;
+    
     UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
     UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
     blurEffectView.frame = self.view.bounds;
@@ -880,13 +892,15 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 }
 
 -(void)injectSingleApp{
-    if(![self isScreenOn] || [self checkIfInApp]){
+    if(![self isScreenOn]){
         [self setAppPending:YES];
         return;
     }
     NSString* appInfo = [FPIApp appInfo];
     NSString* single = [FPIApp singleApp];
     if(appInfo != nil){
+        NSLog(@"FrontPageLog APPINFO: %@", appInfo);
+        NSLog(@"FrontPageLog APPINFO: %@", single);
         [self callJSFunction:appInfo];
         [self callJSFunction:single];
     }
@@ -1371,6 +1385,10 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 
 
 #pragma mark - Calls From Webview
+
+-(void)writeToLog: (NSString *)message{
+    NSLog(@"FrontPageLog: %@", message);
+}
 
 -(void)openURL: (NSString *)url{
     NSString* address = [NSString stringWithFormat:@"http://%@",url];

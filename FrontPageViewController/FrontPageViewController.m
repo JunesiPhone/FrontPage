@@ -330,6 +330,10 @@ void alertrespring (CFNotificationCenterRef center,FrontPageViewController * obs
                 [self loadWebView:themeName];
             }
         }
+    }else{
+        _frontPageSettings = [NSMutableDictionary dictionaryWithContentsOfFile:@"Library/FrontPage/FrontPage.plist"];
+        [self loadThemeSettings:@"Simple"];
+        [self loadWebView:@"Simple"];
     }
     
     //notification for when webview will show copy/paste
@@ -676,7 +680,9 @@ void alertrespring (CFNotificationCenterRef center,FrontPageViewController * obs
 
 #pragma mark - Check Pending
 -(void)checkPendingNotifications{
+    NSLog(@"FrontPageInfo checkingPending");
     if(webViewIsLoaded && [self isScreenOn] && ![self checkIfInApp]){
+        NSLog(@"FrontPageInfo injecting info");
         if([self isSystemPending]){
             [self setSystemPending:NO];
             [self injectSystemIsNotification:YES];
@@ -724,22 +730,27 @@ void alertrespring (CFNotificationCenterRef center,FrontPageViewController * obs
 #pragma mark - Notification Callbacks
 
 void systemCalled(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    NSLog(@"FrontPageInfo systemCalled");
     [observer injectSystemIsNotification:YES];
     [observer checkPendingNotifications];
 }
 void batteryCalled(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    NSLog(@"FrontPageInfo batteryCalled");
     [observer injectBatteryIsNotification:YES];
     [observer checkPendingNotifications];
 }
 void statusbarCalled(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    NSLog(@"FrontPageInfo statusbarCalled");
     [observer injectStatusBarIsNotification:YES];
     [observer checkPendingNotifications];
 }
 void switcherCalled(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    NSLog(@"FrontPageInfo switcherCalled");
     [observer injectSwitcherIsNotification:YES];
     [observer checkPendingNotifications];
 }
 void newAppUpdated(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    NSLog(@"FrontPageInfo newAppUpdated");
     [observer injectSingleApp];
 }
 void updatingApps(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
@@ -754,14 +765,17 @@ void updatingInstalledApps(CFNotificationCenterRef center,FrontPageViewControlle
     [observer checkPendingNotifications];
 }
 void updatingMusic(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    NSLog(@"FrontPageInfo updatingMusic");
     [observer injectMusicIsNotification:YES];
     [observer checkPendingNotifications];
 }
 void updatingNotifications(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    NSLog(@"FrontPageInfo updatingNotifications");
     [observer injectNotificationsIsNotification:YES];
     [observer checkPendingNotifications];
 }
 void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    NSLog(@"FrontPageInfo updatingAlarm");
     [observer injectAlarmIsNotification:YES];
     [observer checkPendingNotifications];
 }

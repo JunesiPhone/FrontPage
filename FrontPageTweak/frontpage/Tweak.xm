@@ -160,7 +160,7 @@ static float deviceVersion = [[[UIDevice currentDevice] systemVersion] floatValu
 static NSString *nsDomainString = @"com.junesiphone.frontpage";
 static NSString *nsNotificationString = @"com.junesiphone.frontpage/preferences.changed";
 static BOOL enabled = NO;
-static BOOL top = NO;
+static BOOL top = YES;
 
 static BOOL hideIcons = NO;
 static BOOL hideDock = NO;
@@ -178,70 +178,29 @@ static UIView *topViewSB;
 static UIColor *color = [UIColor clearColor];
 NSBundle *FPBundle;
 
-
-// /* Hiding Dock */
-static void goHideDock(){
-	SBDockIconListView* dockListView = [[objc_getClass("SBIconController") sharedInstance] dockListView];
-	SBDockView* dockView = (SBDockView*)[dockListView superview];
-	if(hideDock){
-		dockView.alpha = 0;
-		dockView.userInteractionEnabled = NO;
-		dockView.hidden = YES;
-	}
-	//hidingDock = YES;
-}
-static void goShowDock(){
-	SBDockIconListView* dockListView = [[objc_getClass("SBIconController") sharedInstance] dockListView];
-	SBDockView* dockView = (SBDockView*)[dockListView superview];
-	if(!hideDock){
-		dockView.alpha = 1;
-		dockView.userInteractionEnabled = YES;
-		dockView.hidden = NO;
-	}
-	//hidingDock = NO;
-}
-
-
-// %hook SBDockView
-// 	-(void)setBackgroundAlpha:(double)arg1{
-// 		if(hideDots){
-// 			%orig(0.0);
-// 		}else{
-// 			%orig(1.0);
-// 		}
-// 	}
-// %end
-
-/* Hide Dots */
-
-
-static void goHideDots(){
-	//hidingDots = YES;
-	SBFolderView* folderView = [[objc_getClass("SBIconController") sharedInstance] _rootFolderController].contentView;
-	if (!folderView) return;
-	SBIconListPageControl* pageControl = MSHookIvar<SBIconListPageControl*>(folderView, "_pageControl");
-	pageControl.alpha = 0;
-	pageControl.hidden = YES;
-}
-static void goShowDots(){
-	//hidingDots = NO;
-	SBFolderView* folderView = [[objc_getClass("SBIconController") sharedInstance] _rootFolderController].contentView;
-	if (!folderView) return;
-	SBIconListPageControl* pageControl = MSHookIvar<SBIconListPageControl*>(folderView, "_pageControl");
-	pageControl.alpha = 1;
-	pageControl.hidden = NO;
-}
-
-/* If user swipes down to show search pagedots will show again */
-%hook SBIconListPageControl
-	- (double)defaultHeight{
-		if(hideDots){
-			self.alpha = 0;
-
-			self.hidden = YES;
+%hook SBDockView
+	+ (CGFloat)defaultHeight{ //iOS 10.2 and below
+		if(hideDock){
+			return -10;
 		}
 		return %orig;
 	}
+	-(double)dockHeight{ //iOS 11
+		if(hideDock){
+			self.hidden = YES;
+			self.userInteractionEnabled = NO;
+		}
+		return %orig;
+	}
+%end
+
+%hook SBIconListPageControl
+-(void)layoutSubviews {
+	if(hideDots){
+		self.hidden = YES;
+	}
+	%orig;
+}
 %end
 
 static void hideShowItems(){
@@ -256,16 +215,6 @@ static void hideShowItems(){
 		 [topViewSB sendSubviewToBack:insView];
 	}else{
 		[topViewSB bringSubviewToFront:insView];
-	}
-	if(!hideDots){
-		goShowDots();
-	}else{
-		goHideDots();
-	}
-	if(!hideDock){
-		goShowDock();
-	}else{
-		goHideDock();
 	}
 }
 //when app closes? and when screen unlocks
@@ -300,10 +249,8 @@ static void disableFrontPage(){
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"hideDots" inDomain:nsDomainString];
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"hideDock" inDomain:nsDomainString];
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"hideIcons" inDomain:nsDomainString];
-
 	[[NSUserDefaults standardUserDefaults] synchronize];
-	 goShowDots();
-	 goShowDock();
+
 	 if(deviceVersion < 11){
 	 	[[objc_getClass("SBUserAgent") sharedUserAgent]lockAndDimDevice];
 	 }else{
@@ -558,6 +505,7 @@ static void loadFrontPage(){
 // 	        }
 // }
 
+bool isShowingHS = NO;
 
 %hook SpringBoard
 -(void)applicationDidFinishLaunching:(id)application{
@@ -567,19 +515,25 @@ static void loadFrontPage(){
 
 //[statusBar setForegroundAlpha:0 animationParameters:animationParams];
 -(void)frontDisplayDidChange:(id)arg1{
+	if(isShowingHS){
+		NSLog(@"FrontPageInfo Tweak: frontDisplayDidChange update music and App Info");
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingmusic"), NULL, NULL, true);
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingapps"), NULL, NULL, true);
+	}
 	hideShowItems();
     %orig;
 }
 -(long long)_frontMostAppOrientation{
 	//goHideDock();
+	//NSLog(@"FrontPageInfo Tweak frontMostChanged");
 	return %orig;
 }
-
 - (_Bool)isShowingHomescreen{
+	isShowingHS = %orig;
 	bool isShowing = %orig;
 
 	if(isShowing){
-		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingmusic"), NULL, NULL, true);
+		//NSLog(@"FrontPageInfo Tweak isShowing");
 	}
 	//%init(statusbarHider);
     //%init(effect_group);
@@ -587,7 +541,6 @@ static void loadFrontPage(){
 	loaded = YES;
     if(enabled){
     	loadFrontPage();
-      	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingapps"), NULL, NULL, true);
      }
 	return %orig;
 }
@@ -624,14 +577,18 @@ static MPUNowPlayingController *globalMPUNowPlaying;
 %hook SBStatusBarStateAggregator
 - (void)_notifyItemChanged:(int)arg1{
 	%orig;
-	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingstatusbar"), NULL, NULL, true);
+	if(isShowingHS){
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingstatusbar"), NULL, NULL, true);
+	}
 }
 %end
 
 
 %hook SBUIController
 - (void)updateBatteryState:(id)arg1{
-	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingbattery"), NULL, NULL, true);
+	if(isShowingHS){
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingbattery"), NULL, NULL, true);
+	}
 	%orig;
 }
 
@@ -672,6 +629,7 @@ static NSMutableDictionary *appBadge = [[NSMutableDictionary alloc]init];
           [appBadge setObject:bg forKey:@"value"];
           [appBadge setObject:arg2 forKey:@"bundle"];
     }
+    NSLog(@"FrontPageInfo BadgeUpdate1");
     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.app"), NULL, NULL, true);
 }
 %end
@@ -696,6 +654,7 @@ static NSMutableDictionary *appBadge = [[NSMutableDictionary alloc]init];
 		[appBadge setObject:bg forKey:@"value"];
 		[appBadge setObject:arg3 forKey:@"bundle"];
   	}
+  	NSLog(@"FrontPageInfo BadgeUpdate2");
   	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.app"), NULL, NULL, true);
   	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingnotifications"), NULL, NULL, true);
 }
@@ -777,7 +736,7 @@ static void notificationCallback(CFNotificationCenterRef center, void *observer,
 
 
 	enabled = (n)? [n boolValue]:NO;
-	top = (t)? [t boolValue]:NO;
+	top = (t) ? [t boolValue]: NO;
 	iconlock = (c)? [c boolValue]:NO;
 
 	interaction = (inter)? [inter boolValue]:NO;

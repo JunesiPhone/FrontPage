@@ -417,6 +417,7 @@ void alertrespring (CFNotificationCenterRef center,FrontPageViewController * obs
         }
     });
     [self startWeatherLoop];
+    
     //[NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(checkWebViewTitle) userInfo:nil repeats:YES];
     
     
@@ -742,11 +743,12 @@ void newAppUpdated(CFNotificationCenterRef center,FrontPageViewController * obse
     [observer injectSingleApp];
 }
 void updatingApps(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
-    [FPIApps saveAllIconImagesWithObserver:observer];
+    NSLog(@"FrontPageInfo updatingApps");
     [observer injectAppsIsNotification:YES];
     [observer checkPendingNotifications];
 }
 void updatingInstalledApps(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    NSLog(@"FrontPageInfo updatingInstalledApps");
     [FPIApps saveAllIconImagesWithObserver:observer];
     [observer injectNewAppsIsNotification:YES];
     [observer checkPendingNotifications];
@@ -996,9 +998,9 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         [self injectAppsIsNotification:NO];
         [self injectSingleApp]; // call after apps
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)newAppUpdated,CFSTR("com.junesiphone.frontpage.app"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
-        
+
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)updatingApps,CFSTR("com.junesiphone.frontpage.updatingapps"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
-        
+
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)updatingInstalledApps,CFSTR("com.junesiphone.frontpage.newappinstalled"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
     }
     if(notifications){
@@ -1020,11 +1022,12 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     if(weather){
         [self updateWeatherNow];
     }
-    
+
     [self checkPendingNotifications];
     [self loadReminders];
+        NSLog(@"FrontPageInfo startedEverything");
     }@catch(NSException * err){
-        NSLog(@"FPPlus %@", err);
+        NSLog(@"FrontPageInfo %@", err);
     }
 }
 
@@ -1334,6 +1337,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     [self startEverything];
     [self callJSFunction:@"deviceUnlocked()"];
     webViewIsLoaded = YES;
+    NSLog(@"FrontPageInfo didFinishNavigation");
 }
 
 

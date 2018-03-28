@@ -179,33 +179,7 @@ static UIColor *color = [UIColor clearColor];
 NSBundle *FPBundle;
 
 
-// /* Hide Icons */
-
-static void goHideIcons(){
-	SBIconController* shared = [objc_getClass("SBIconController") sharedInstance];
-	for (int i = 0; i <= 13; i++){
-    	if([shared rootIconListAtIndex:i] != nil){
-    		UIView *iconViewList = [shared rootIconListAtIndex:i];
-    		iconViewList.alpha = 0;
-    	}
-	}
-	//hidingIcons = YES;
-}
-
-static void goShowIcons(){
-	SBIconController* shared = [objc_getClass("SBIconController") sharedInstance];
-	for (int i = 0; i <= 13; i++){
-    	if([shared rootIconListAtIndex:i] != nil){
-    		UIView *iconViewList = [shared rootIconListAtIndex:i];
-    		iconViewList.alpha = 1;
-    	}
-	}
-	//hidingIcons = NO;
-}
-
 // /* Hiding Dock */
-
-
 static void goHideDock(){
 	SBDockIconListView* dockListView = [[objc_getClass("SBIconController") sharedInstance] dockListView];
 	SBDockView* dockView = (SBDockView*)[dockListView superview];
@@ -227,20 +201,6 @@ static void goShowDock(){
 	//hidingDock = NO;
 }
 
-%hook SBIconModel
--(BOOL)isIconVisible:(id)arg1{
-	// if(deviceVersion >= 11){ //this will hide apps in the switcher as well
-	// 	if(hideIcons){
-	// 		return NO;
-	// 	}else{
-	// 		return %orig;
-	// 	}
-	// }else{
-	// 	return %orig;
-	// }
-	return %orig;
-}
-%end
 
 // %hook SBDockView
 // 	-(void)setBackgroundAlpha:(double)arg1{
@@ -284,7 +244,6 @@ static void goShowDots(){
 	}
 %end
 
-
 static void hideShowItems(){
 	topViewSB = [[%c(SBIconController) sharedInstance] _rootFolderController].contentView;
 	for(UIView *v in topViewSB.subviews){
@@ -297,11 +256,6 @@ static void hideShowItems(){
 		 [topViewSB sendSubviewToBack:insView];
 	}else{
 		[topViewSB bringSubviewToFront:insView];
-	}
-	if(!hideIcons){
-		goShowIcons();
-	}else{
-		goHideIcons();
 	}
 	if(!hideDots){
 		goShowDots();
@@ -348,8 +302,6 @@ static void disableFrontPage(){
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"hideIcons" inDomain:nsDomainString];
 
 	[[NSUserDefaults standardUserDefaults] synchronize];
-
-	 goShowIcons();
 	 goShowDots();
 	 goShowDock();
 	 if(deviceVersion < 11){
@@ -445,7 +397,14 @@ static void loadFrontPage(){
 	y can be set to fromtop:100, frombottom:100, fromleft:100, fromright:100 or center. Width can be auto or an int, same for height
 */
 
-
+%hook SBRootIconListView
+	-(double)sideIconInset{
+		if(hideIcons){
+			self.hidden = YES;
+		}	
+		return %orig;
+	}
+%end
 
 %hook SBIconController
 
@@ -485,7 +444,6 @@ static void loadFrontPage(){
 
 
 - (_Bool)isDisplayingIcon:(id)arg1 inLocation:(long long)arg2{ //stops animation to icon when app is opened or closed
-
 	if(hideIcons){
 		return NO;
 	}else{

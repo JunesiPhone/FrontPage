@@ -133,7 +133,7 @@
 			<key>key</key>
 			<string>hideIcons</string>
 			<key>label</key>
-			<string>Hide Icons</string>
+			<string>Hide Icons (respring)</string>
 			<key>PostNotification</key>
 			<string>com.junesiphone.frontpage/preferences.changed</string>
 		</dict>

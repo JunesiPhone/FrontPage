@@ -18,14 +18,19 @@
 	notify_post("com.junesiphone.frontpage.openmenu");
 }
 
-		// <dict>
-		// 	<key>action</key>
-		// 	<string>respring</string>
-		// 	<key>cell</key>
-		// 	<string>PSButtonCell</string>
-		// 	<key>label</key>
-		// 	<string>Respring</string>
-		// </dict>
+// -(NSArray *)themeTitles {
+//     NSMutableArray* files = [[[NSFileManager defaultManager]
+//                               contentsOfDirectoryAtPath:@"/var/mobile/Library/iWidgets" error:nil] mutableCopy];
+
+//     return files;
+// }
+
+// -(NSArray *)themeValues {
+//     NSMutableArray* files = [[[NSFileManager defaultManager]
+//                               contentsOfDirectoryAtPath:@"/var/mobile/Library/iWidgets" error:nil] mutableCopy];
+
+//     return files;
+// }
 
 - (void)visitRepo:(id)sender {
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.junesiphone.com/supersecret"]];

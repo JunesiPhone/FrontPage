@@ -96,6 +96,7 @@
 }
 
 +(void)saveAllIconImagesWithObserver: (id)observer{
+    NSLog(@"FrontPageInfo saving icons");
     NSArray *appArray = [[objc_getClass("SBApplicationController") sharedInstance] allApplications];
     for(SBApplication *app in appArray){
         NSString* bundle = app.bundleIdentifier;

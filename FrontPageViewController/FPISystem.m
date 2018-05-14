@@ -9,6 +9,8 @@
 #import <sys/utsname.h>
 #import <EventKit/EventKit.h>
 
+#define deviceVersion [[[UIDevice currentDevice] systemVersion] floatValue]
+
 @implementation FPISystem
 
 
@@ -142,6 +144,8 @@
     NSString *deviceType = [UIDevice currentDevice].model;
     //iPhone6
     NSString *model = [FPISystem deviceName];
+    model = [[NSString stringWithFormat:@"%@",model] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+    model = [[NSString stringWithFormat:@"%@",model] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
     //fake it
     NSString *serial = @"JKDNSEOGME87JS7DL";
     //DeviceName
@@ -161,6 +165,15 @@
     float totalGB = totalsizeGb + totalsizeGb2;
     float freeGB = freesizeGb + freesizeGb2;
     
+    
+    if(deviceVersion >= 11){
+        totalsizeGb = totalsizeGb / 2;
+        totalsizeGb2 = totalsizeGb2 / 2;
+        freesizeGb = freesizeGb / 2;
+        freesizeGb2 = freesizeGb2 / 2;
+        totalGB = totalGB / 2;
+        freeGB = freeGB / 2;
+    }
     EKEventStore *store;
     
     if(!store){

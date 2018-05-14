@@ -42,44 +42,49 @@
 
 +(NSMutableDictionary *)notificationInfo{
     
-    NSMutableDictionary *notificationInfo =[[NSMutableDictionary alloc] init];
-    NSMutableDictionary *bulletins = [objc_getClass("BBServer") frontpage_ids];
-    NSMutableArray *notificationArray = [[NSMutableArray alloc] init];
-    NSMutableDictionary *fullBulletin = [[NSMutableDictionary alloc] init];
-    NSMutableDictionary *bulletInfo;
-    NSString *bulletKey;
+    NSMutableDictionary *notificationInfo = [[NSMutableDictionary alloc] init];
     
-    for (NSString *bullet in bulletins) {
+    @try{
+        NSMutableDictionary *bulletins = [objc_getClass("BBServer") frontpage_ids];
+        NSMutableArray *notificationArray = [[NSMutableArray alloc] init];
+        NSMutableDictionary *fullBulletin = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary *bulletInfo;
+        NSString *bulletKey;
         
-        bulletKey = bullet;
-        fullBulletin = [bulletins objectForKey:bullet];
-        NSString *bundle = [fullBulletin objectForKey:@"bundle"];
-        NSString *text = [fullBulletin objectForKey:@"text"];
-        
-        NSMutableString *s = [NSMutableString stringWithString:text];
-        [s replaceOccurrencesOfString:@"\'" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
-        [s replaceOccurrencesOfString:@"\"" withString:@"\\\"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
-        [s replaceOccurrencesOfString:@"/" withString:@"\\/" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
-        [s replaceOccurrencesOfString:@"\n" withString:@"\\n" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
-        [s replaceOccurrencesOfString:@"\b" withString:@"\\b" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
-        [s replaceOccurrencesOfString:@"\f" withString:@"\\f" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
-        [s replaceOccurrencesOfString:@"\r" withString:@"\\r" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
-        [s replaceOccurrencesOfString:@"\t" withString:@"\\t" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
-        text = [NSString stringWithString:s];
+        if([bulletins count] > 0){
+            for (NSString *bullet in bulletins) {
+                bulletKey = bullet;
+                fullBulletin = [bulletins objectForKey:bullet];
+                NSString *bundle = [fullBulletin objectForKey:@"bundle"];
+                NSString *text = [fullBulletin objectForKey:@"text"];
+                
+                NSMutableString *s = [NSMutableString stringWithString:text];
+                [s replaceOccurrencesOfString:@"\'" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
+                [s replaceOccurrencesOfString:@"\"" withString:@"\\\"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
+                [s replaceOccurrencesOfString:@"/" withString:@"\\/" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
+                [s replaceOccurrencesOfString:@"\n" withString:@"\\n" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
+                [s replaceOccurrencesOfString:@"\b" withString:@"\\b" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
+                [s replaceOccurrencesOfString:@"\f" withString:@"\\f" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
+                [s replaceOccurrencesOfString:@"\r" withString:@"\\r" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
+                [s replaceOccurrencesOfString:@"\t" withString:@"\\t" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [s length])];
+                text = [NSString stringWithString:s];
+                
+                bulletInfo = [[NSMutableDictionary alloc] init];
+                [bulletInfo setValue:bundle forKey:@"bundle"];
+                [bulletInfo setValue:text forKey:@"text"];
+                [notificationArray addObject:bulletInfo];
+                
+            }
+        }
 
-        bulletInfo = [[NSMutableDictionary alloc] init];
-        [bulletInfo setValue:bundle forKey:@"bundle"];
-        [bulletInfo setValue:text forKey:@"text"];
-        [notificationArray addObject:bulletInfo];
-        
+        [notificationInfo setValue:notificationArray forKey:@"all"];
+        bulletins = nil;
+        notificationArray = nil;
+        fullBulletin = nil;
+        bulletInfo = nil;
+    }@catch(NSException* error){
+        NSLog(@"FrontPage Error in FPINotifications %@", error);
     }
-
-    [notificationInfo setValue:notificationArray forKey:@"all"];
-    bulletins = nil;
-    notificationArray = nil;
-    fullBulletin = nil;
-    bulletInfo = nil;
-
     return notificationInfo;
 }
 @end

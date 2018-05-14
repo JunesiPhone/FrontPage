@@ -639,14 +639,27 @@ void alertrespring (CFNotificationCenterRef center,FrontPageViewController * obs
     
     //need top view to display over icons, iOS8 doesn't work though:(
     UIView* topView = [UIApplication sharedApplication].keyWindow.rootViewController.view;
+
+    
     if(topView == nil){ //iOS8 doesn't respond to keyWindow.rootViewController
-        topView = [UIApplication sharedApplication].keyWindow;
-        [topView addSubview:_themeSetupView];
-        [topView bringSubviewToFront:_themeSetupView];
+        if(deviceVersion < 11){
+            topView = [UIApplication sharedApplication].keyWindow;
+            [topView addSubview:_themeSetupView];
+            [topView bringSubviewToFront:_themeSetupView];
+        }else{
+            [self.view addSubview:_themeSetupView];
+            [self.view bringSubviewToFront:_themeSetupView];
+        }
     }else{
-        [topView addSubview:_themeSetupView];
-        [topView bringSubviewToFront:_themeSetupView];
+        if([topView isKindOfClass:[objc_getClass("SBHomeScreenView") class]]){
+            [topView addSubview:_themeSetupView];
+            [topView bringSubviewToFront:_themeSetupView];
+        }else{
+            [self.view addSubview:_themeSetupView];
+            [self.view bringSubviewToFront:_themeSetupView];
+        }
     }
+    
 }
 
 - (void)doubleSwipe:(UISwipeGestureRecognizer*)gestureRecognizer{
@@ -908,10 +921,10 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 }
 
 -(void)injectSingleApp{
-    if(![self isScreenOn]){
-        [self setAppPending:YES];
-        return;
-    }
+//    if(![self isScreenOn]){
+//        [self setAppPending:YES];
+//        return;
+//    }
     NSString* appInfo = [FPIApp appInfo];
     NSString* single = [FPIApp singleApp];
     if(appInfo != nil){
@@ -1246,6 +1259,29 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     }
 }
 
+- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(nullable NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * __nullable result))completionHandler {
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                   message:prompt
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = prompt;
+        textField.secureTextEntry = NO;
+        textField.text = defaultText;
+    }];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        completionHandler(nil);
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        completionHandler([alert.textFields.firstObject text]);
+    }]];
+    
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+}
+
 -(void)loadWebView:(NSString *)themeName{
     
     if([themeName isEqualToString:@"SpringBoard"]){
@@ -1261,6 +1297,9 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         
         WKPreferences *preferences = [[WKPreferences alloc] init];
         [preferences setJavaScriptEnabled: YES];
+        [preferences _setAllowFileAccessFromFileURLs:YES];
+        [preferences _setFullScreenEnabled:YES];
+        [preferences _setOfflineApplicationCacheIsEnabled:YES];
         
         if(deviceVersion >= 9.0){
             [preferences _setAllowFileAccessFromFileURLs:YES];
@@ -1566,7 +1605,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
 
 //hide the paste buttons on webview, except when in terminal
 -(void)processit:(id)sender {
-    if(![self isInTerminalCheck]){
+    if(![self isInTerminalCheck] && !deviceLocked){
         UIMenuController *menu = [UIMenuController sharedMenuController];
         [menu setMenuVisible:NO];
         [menu performSelector:@selector(setMenuVisible:) withObject:[NSNumber numberWithBool:NO] afterDelay:0];

@@ -31,6 +31,11 @@
 - (void)setWiFiEnabled:(BOOL)arg1;
 @end
 
+@interface HSWiFiManager : NSObject
++(id)sharedWiFiManager;
+-(void)setWiFiEnabled:(BOOL)arg1 ;
+@end
+
 /*BlueTooth*/
 @interface BluetoothManager : NSObject
 + (id)sharedInstance;
@@ -60,9 +65,15 @@
 
 +(void)enableWifi{
     [[objc_getClass("SBWiFiManager") sharedInstance] setWiFiEnabled:YES];
+    if([[objc_getClass("HSWifiManager") sharedWiFiManager] respondsToSelector:@selector(setWiFiEnabled:)]){
+        [[objc_getClass("HSWifiManager") sharedWiFiManager] setWiFiEnabled:YES];
+    }
 }
 +(void)disableWifi{
     [[objc_getClass("SBWiFiManager") sharedInstance] setWiFiEnabled:NO];
+    if([[objc_getClass("HSWifiManager") sharedWiFiManager] respondsToSelector:@selector(setWiFiEnabled:)]){
+        [[objc_getClass("HSWifiManager") sharedWiFiManager] setWiFiEnabled:NO];
+    }
 }
 +(void)enableBluetooth{
     [[objc_getClass("BluetoothManager") sharedInstance] setEnabled:YES];

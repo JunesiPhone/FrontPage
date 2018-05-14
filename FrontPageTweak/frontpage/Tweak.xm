@@ -24,6 +24,7 @@
 	-(BOOL)isUILocked;
 @end
 
+
 @interface SpringBoard : NSObject
 	- (void)_relaunchSpringBoardNow;
 	+(id)sharedInstance;
@@ -147,6 +148,10 @@
 + (double)defaultHeight;
 @end
 
+@interface SBFloatingDockView : UIView
+	-(void)layoutSubviews;
+@end
+
 @interface SBIconScrollView : UIView
 @end
 @interface SBRootFolderView : UIView
@@ -188,9 +193,29 @@ NSBundle *FPBundle;
 	-(double)dockHeight{ //iOS 11
 		if(hideDock){
 			self.hidden = YES;
+			self.alpha = 0;
 			self.userInteractionEnabled = NO;
 		}
 		return %orig;
+	}
+%end
+
+//iPad
+
+%hook SBFloatingDockView
+	-(void)layoutSubviews{
+		%orig;
+		if(hideDock){
+			self.hidden = YES;
+			self.userInteractionEnabled = NO;
+		}
+	}
+	-(double)contentHeightForBounds:(CGRect)arg1{
+		if(hideDock){
+			return -10;
+		}else{
+			return %orig;
+		}
 	}
 %end
 
@@ -198,8 +223,15 @@ NSBundle *FPBundle;
 -(void)layoutSubviews {
 	if(hideDots){
 		self.hidden = YES;
+		self.alpha = 0;
 	}
 	%orig;
+}
+- (id)initWithFrame:(struct CGRect)arg1{
+	if(hideDots){
+		return nil;
+	}
+	return %orig;
 }
 %end
 
@@ -517,6 +549,7 @@ bool isShowingHS = NO;
 -(void)frontDisplayDidChange:(id)arg1{
 	if(isShowingHS){
 		NSLog(@"FrontPageInfo Tweak: frontDisplayDidChange update music and App Info");
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingswitcher"), NULL, NULL, true);
 		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingmusic"), NULL, NULL, true);
 		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingapps"), NULL, NULL, true);
 	}

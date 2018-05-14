@@ -19,6 +19,7 @@
 - (id)mainSwitcherDisplayItems;
 - (id)snapshot;
 -(id)snapshotOfFlattenedArrayOfAppIdentifiersWhichIsOnlyTemporary;
+-(id)mainSwitcherAppLayouts;
 @end
 
 @interface SBApplication
@@ -43,6 +44,15 @@
 
 @end
 
+
+//iOS 11.1.2
+@interface SBDisplayItem : NSObject
+-(NSString *)displayIdentifier;
+@end
+@interface SBAppLayout : NSObject
+-(NSDictionary *)rolesToLayoutItemsMap;
+@end
+
 @implementation FPISwitcher
 
 #define deviceVersion [[[UIDevice currentDevice] systemVersion] floatValue]
@@ -59,6 +69,9 @@
     if(deviceVersion >= 9.0){
         if ([[objc_getClass("SBAppSwitcherModel") sharedInstance] respondsToSelector:@selector(mainSwitcherDisplayItems)]) {
             switcherApps = [[objc_getClass("SBAppSwitcherModel") sharedInstance] mainSwitcherDisplayItems];
+        }else if([[objc_getClass("SBAppSwitcherModel") sharedInstance] respondsToSelector:@selector(mainSwitcherAppLayouts)]){
+            //NSLog(@"JTest %@", [[objc_getClass("SBAppSwitcherModel") sharedInstance]mainSwitcherAppLayouts]);
+            switcherApps = [[objc_getClass("SBAppSwitcherModel") sharedInstance]mainSwitcherAppLayouts];
         }else{
             switcherApps = nil;
         }
@@ -71,11 +84,23 @@
             NSString *bundle = app.displayIdentifier;
             [switcherArray addObject:bundle];
         }
-        
-    }else{
+    }else if(deviceVersion < 11.0){
         for (SBApplication *app in switcherApps) {
             NSString *bundle = app.displayIdentifier;
             [switcherArray addObject:bundle];
+        }
+    }else{
+        for (SBAppLayout *app in switcherApps) {
+            NSDictionary *temp = [app rolesToLayoutItemsMap];
+            if(temp){
+                NSArray *values = [temp allValues];
+                if([values count] > 0){
+                    SBDisplayItem *item = [values objectAtIndex:0];
+                    if(item){
+                        [switcherArray addObject:item.displayIdentifier];
+                    }
+                }
+            }
         }
     }
     

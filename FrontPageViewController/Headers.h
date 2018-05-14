@@ -38,8 +38,23 @@
 @end
 
 
-@interface WKPreferences (webview)
-@property (assign,setter=_setAllowFileAccessFromFileURLs:,nonatomic) BOOL _allowFileAccessFromFileURLs; 
+@interface WKPreferences (Private)
+- (void)_setAllowFileAccessFromFileURLs:(BOOL)arg1;
+- (void)_setAntialiasedFontDilationEnabled:(BOOL)arg1;
+- (void)_setCompositingBordersVisible:(BOOL)arg1;
+- (void)_setCompositingRepaintCountersVisible:(BOOL)arg1;
+- (void)_setDeveloperExtrasEnabled:(BOOL)arg1;
+- (void)_setDiagnosticLoggingEnabled:(BOOL)arg1;
+- (void)_setFullScreenEnabled:(BOOL)arg1;
+- (void)_setJavaScriptRuntimeFlags:(unsigned int)arg1;
+- (void)_setLogsPageMessagesToSystemConsoleEnabled:(BOOL)arg1;
+- (void)_setOfflineApplicationCacheIsEnabled:(BOOL)arg1;
+- (void)_setSimpleLineLayoutDebugBordersEnabled:(BOOL)arg1;
+- (void)_setStandalone:(BOOL)arg1;
+- (void)_setStorageBlockingPolicy:(int)arg1;
+- (void)_setTelephoneNumberDetectionIsEnabled:(BOOL)arg1;
+- (void)_setTiledScrollingIndicatorVisible:(BOOL)arg1;
+- (void)_setVisibleDebugOverlayRegions:(unsigned int)arg1;
 @end
 
 @interface SBControlCenterController : NSObject
@@ -195,4 +210,7 @@
     }
     return self;
 }
+@end
+
+@interface SBHomeScreenView : UIView
 @end

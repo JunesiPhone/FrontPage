@@ -1,0 +1,193 @@
+.drawer_main{
+    position: absolute;
+    top:0;
+    left:0;
+    -webkit-transform:translate(0,0)translateZ(0)scale(0);
+    -webkit-transition: all  .2s ease-in-out;
+    -webkit-backface-visibility: hidden;
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+    opacity: 0;
+    visibility: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-scroll-snap-type: mandatory;
+    scroll-snap-type: x mandatory;
+    -webkit-scroll-snap-points-x: repeat(100%);
+    background-color: rgba(0,0,0,0.5);
+    -webkit-backdrop-filter:blur(10px);
+}
+.drawer_open{
+    -webkit-transform:translate(0,0)translateZ(0)scale(1.0);
+    visibility: visible;
+    opacity: 1;
+}
+.drawer_close_button{
+    position: absolute;
+    bottom:0px;
+    left:0px;
+    width: 100%;
+    height: 100px;
+    z-index: 10;
+    display: none;
+}
+.drawer_close_button_show{
+    display: block;
+}
+.drawer_icon{
+    background-size: cover;
+    display: inline-block;
+}
+.drawer_icon::before{
+    content: attr(badge);
+    position: absolute;
+    font-size: 12px;
+    display: block;
+    background-color: black;
+    color:white;
+    border-radius: 0;
+    line-height: 15px;
+    padding-left: 4px;
+    padding-right:4px;
+    margin-left:-10px;
+    margin-top:-5px;
+}
+.drawer_icon::after{
+    position: absolute;
+    content: attr(name);
+    text-align: center;
+    display: block;
+    font-size: 1vw;
+}
+.drawer_page{
+  position: relative;
+  top:50%;
+  width: 100%;
+  display: inline-block;
+  vertical-align: top;
+  margin-right: -4px;
+  white-space: normal;
+  text-align: center;
+  box-sizing:border-box;
+  -webkit-transform:translateZ(0)translate(0%, -50%)scale(1);
+  border-radius: 20px;
+  -webkit-scroll-snap-align: start;
+  scroll-snap-align: start;
+}
+/*.drawer_main > div:last-child{
+    position: relative;
+    margin-right: 0!important;
+    margin-left:100px!important;
+    background-color: red;
+    background-color: yellow;
+}*/
+
+
+
+/* Popup */
+
+
+.popupShow {
+    right: 3px!important;
+}
+#systemPopup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    width: 95%;
+    max-width: 320px;
+    height: auto;
+    max-height: 50vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 5px;
+    color: white;
+    border: 1px solid black;
+    z-index: 10;
+    -webkit-animation: fadeitin 0.4s forwards;
+}
+@-webkit-keyframes fadeitin {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+.systemOptions {
+    position: relative;
+    /*background-color: red;*/
+    width: 80%;
+    height: 40px;
+    margin: 0 auto;
+    margin-bottom: 10px;
+}
+#systemYes {
+    position: absolute;
+    top: 5px;
+    right: 20px;
+    padding: 5px;
+    width: 30%;
+    height: 20px;
+    text-align: center;
+    border-radius: 4px;
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+    /*border-left: 1px solid green;
+    border-right: 1px solid green;*/
+}
+#systemYes::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: white;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+#systemNo {
+    color: white;
+    position: absolute;
+    top: 5px;
+    left: 20px;
+    padding: 5px;
+    width: 30%;
+    height: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    /*border-left: 1px solid red;
+    border-right: 1px solid red;*/
+    text-align: center;
+    border-radius: 4px;
+}
+#systemNo::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: white;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+#systemMessage {
+    padding: 10px;
+    font-size: 12px;
+    overflow: scroll;
+    height: auto;
+    width: auto;
+    max-height: 100%;
+    text-align: justify;
+    text-justify: inter-word;
+    white-space: pre-line;
+    margin: 20px;
+    border-top: 0px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    color: white;
+    /*background-color: blue;*/
+}
+
+
+
+

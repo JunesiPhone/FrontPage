@@ -122,9 +122,9 @@ void deviceUnlock (CFNotificationCenterRef center,FrontPageViewController * obse
 }
 void openMenu (CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo) {
     [observer showMenu];
-    if(deviceVersion < 11){
+    //if(deviceVersion < 11){
         [observer pressHomeButton];
-    }
+    //}
 }
 
 -(void)pressHomeButton{

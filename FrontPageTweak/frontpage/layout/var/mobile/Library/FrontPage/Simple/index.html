@@ -1,0 +1,301 @@
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=3, user-scalable=0">
+    <link rel="stylesheet" type="text/css" href="css/drawer.css">
+    <style type="text/css">
+        body{
+            margin:0;
+            padding:0;
+            font-family: helvetica;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            color:white;
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+            text-shadow: 0px 1px 1px rgba(0,0,0,0.8);
+            font-weight: 900;
+        }
+        .simple{
+            width: 100%;
+            height: 100%;
+        }
+        .dock{
+            position: absolute;
+            bottom:20;
+            width: 85%;
+            left:50%;
+            border-radius: 20px;
+            -webkit-transform:translate(-50%);
+            height: 18vw;
+            background-color: rgba(0,0,0,0.5);
+            -webkit-backdrop-filter:blur(10px);
+            overflow: hidden;
+        }
+        .dockIcons{
+            position: absolute;
+            top:50%;
+            -webkit-transform:translate(0, -50%);
+            width: 100%;
+            height: 12vw;
+            text-align: center;
+
+        }
+        .dockIcons div{
+            width: 12vw;
+            height: 12vw;
+            margin-left: 5px;
+            margin-right: 5px;
+            background-size: cover;
+            /*background-image:url('/var/mobile/Library/FrontPageCache/com.apple.mobilemail.png');*/
+            display: inline-block;
+        }
+        .dockIcons div::after{
+            position: absolute;
+            top:0;
+            margin-left: 18px;
+            padding-left: 4px;
+            padding-right: 4px;
+            margin-right: 20px;
+            border-radius: 99px;
+            color:white;
+            font-size: 12px;
+            background-color: red;
+            content: attr(title);
+        }
+        .centerHolder{
+            position: absolute;
+            width: 85%;
+            height: 100%;
+            left:50%;
+            -webkit-transform:translate(-50%, 0);
+        }
+        .mainInfo{
+            position: absolute;
+            top:50%;
+            left:50%;
+            font-size: 6.5vw;
+            -webkit-transform:translate(-50%, 0);
+            width: 85%;
+            height: 110px;
+            padding:10px;
+        }
+        .subInfo{
+            position: absolute;
+            bottom: -30px;
+            padding: 10px;
+            left:0;
+            font-size: 3vw;
+            opacity: 0.8;
+        }
+        .buttonHolder{
+            position: absolute;
+            top:40%;
+            padding:10px;
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 5px;
+            -webkit-backdrop-filter:blur(10px);
+        }
+        .buttonHolder div{
+            display: inline-block;
+            margin-right: 15px;
+            text-transform: uppercase;
+        }
+        .buttonHolder div:first-child::after{
+            position: absolute;
+            margin-top: -8px;
+            margin-left: 6px;
+            content: "/";
+            font-size: 30px;
+            font-weight: 100;
+            opacity: 0.2;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="simple" class="simple">
+        <div class="centerHolder">
+        <div class="buttonHolder">
+            <!-- <div class="openMenu" ontouchstart="window.location = 'frontpage:showMenu';">FrontPage</div> -->
+            <div class="openMenu" ontouchstart="window.location = 'frontpage:opensearch';">Search</div>
+            <div class="openApps" ontouchstart="FPI.drawer.toggleDrawer();">Apps</div>
+        </div>
+        </div>
+        <div class="mainInfo" id="mainInfo"></div>
+        <div class="dock" id="dock">
+            <div class="dockIcons">
+                <div id="app1"></div>
+                <div id="app2"></div>
+                <div id="app3"></div>
+                <div id="app4"></div>
+                <div id="app5"></div>
+            </div>
+        </div>
+    </div>
+
+<script type="text/javascript" src="js/clock.js"></script>
+<script type="text/javascript" src="js/drawer.js"></script>
+<script type="text/javascript" src="js/swipe.js"></script>
+<script>
+
+var app1 = localStorage.app1 || 'com.apple.camera';
+var app2 = localStorage.app2 || 'org.coolstar.electra';
+var app3 = localStorage.app3 || 'com.apple.MobileSMS';
+var app4 = localStorage.app4 || 'com.apple.mobilemail';
+var app5 = localStorage.app5 || 'com.apple.mobilesafari';
+
+function setupDock(){
+    for (var i = 1; i < 6; i++) {
+        var app = document.getElementById('app' + i);
+        app.style.backgroundImage = 'url("/var/mobile/Library/FrontPageCache/' + window['app' + i] + '.png")';
+        app.setAttribute('bundle', window['app' + i]);
+        try{
+            app.title = (FPI.bundle[window['app' + i]].badge > 0) ? FPI.bundle[window['app' + i]].badge : "";
+        }catch(err){
+            app.title = "";
+        }
+    };
+}
+
+var dock = {
+        element: document.getElementById('dock'),
+        hold: null,
+        timer: null,
+        events: null,
+        id: null,
+        holding: function(){
+            dock.hold = true;
+            window.appChanging = dock.events.target.getAttribute('bundle');
+            window.divID = dock.id;
+            FPI.drawer.toggleDrawer();
+        },
+        touchstart: function(){
+            dock.events = event;
+            dock.id = event.target.id;
+            timer = setTimeout(dock.holding, 1000);
+        },
+        touchmove: function(){
+            clearTimeout(timer);
+            dock.hold = false;
+        },
+        touchend: function(){
+            clearTimeout(timer);
+            if(!dock.hold){
+                window.location = 'frontpage:openApp:' + event.target.getAttribute('bundle');
+            }
+            dock.hold = false;
+        }
+    };
+dock.element.addEventListener('touchstart',dock.touchstart);
+dock.element.addEventListener('touchmove',dock.touchmove);
+dock.element.addEventListener('touchend',dock.touchend);
+
+var FPI = {},
+    openApp = function (bundle) {
+        window.location = 'frontpage:openApp:' + bundle;
+    },
+    setFPIInfo = function (info, label, parse) {
+        if (parse) {
+            FPI[label] = JSON.parse(info);
+        } else {
+            FPI[label] = info;
+        }
+    },
+    badgeUpdated = function (bundle) {
+        FPI.drawer.updateBadge(bundle);
+    },
+    FPIloaded = function () {
+        clock({
+            twentyfour: (FPI.system.twentyfour == "yes") ? true : false,
+            padzero: true,
+            refresh: 1000,
+            success: function (c) {
+                try{ //weather will fail at first as it's still loading.
+                    var alarm = "",
+                        chargingText = "not charging",
+                        mainInfo = document.getElementById('mainInfo');
+
+                    if (FPI.alarm.allalarms[0].time != undefined) {
+                        alarm = "Alarm is set for " + FPI.alarm.allalarms[0].time + ".";
+                    }
+                    if (FPI.battery.chargetext === "Charging") {
+                        chargingText = "charging";
+                    }
+
+                    mainInfo.innerHTML = "Today is " + translate[current].weekday[c.day()] + " the temperature is "+FPI.weather.temperature+"&deg; and it's " + translate[current].condition[FPI.weather.conditionCode] + " outside. " + "<div class='subInfo'>It's " + c.hour() + ':' + c.minute() + " on "+translate[current].month[c.month()]+" the "+c.dateplus()+", Your battery is at "+FPI.battery.percent+"% and is "+chargingText+". " + alarm + "</div>";
+
+                }catch(ignore){}
+            }
+        });
+
+      var iconW = 11,
+          iconM = 25,
+          pagingAmount = 20;
+      // iPhone X
+      if(window.innerHeight == 812){
+          iconW = 12;
+          iconM = 15;
+          pagingAmount = 32;
+      }
+      // iPhone 7
+      if(window.innerHeight == 667){
+          iconW = 11;
+          iconM = 23;
+          pagingAmount = 20;
+      }
+      // iPhone 5, 5s, SE
+      if(window.innerHeight == 568){
+        iconW = 10;
+        iconM = 20;
+        pagingAmount = 20;
+      }
+        FPI.drawer = new Drawer({
+            labels: true,
+            idPrefix: "APP",
+            pagingAmount: 20,
+            iconWidth: iconW,
+            iconMargin: iconM,
+            pageSpacing: 20,
+            pagePadding: 10,
+            labelTopPadding: 1,
+        });
+        setupDock();
+        //FPI.drawer.toggleDrawer();
+    },
+    loadApps = function () {
+      //FPI.drawer.reloadIcons();
+    },
+    badgeUpdated = function (bundle) {
+        FPI.drawer.updateBadge(bundle);
+        setupDock();
+    },
+    viewRotated = function (direction) {
+        if(direction == "portrait" || direction == "portraitdown"){
+            document.getElementById('mainInfo').style.display = 'block';
+        }
+        if(direction == "landscapeleft" || direction == "landscaperight"){
+            document.getElementById('mainInfo').style.display = 'none';
+        }
+    },
+    loadSystem = function () {},
+    loadSwitcher = function () {},
+    loadMusic = function () {},
+    loadNotifications = function () {},
+    loadFolders = function () {},
+    loadMemory = function () {},
+    loadWeather = function () {},
+    loadReminders = function(){},
+    loadBattery = function () {},
+    loadStatusBar = function () {},
+    appsInstalled = function () {
+        FPI.drawer.reloadIcons();
+    },
+    loadAlarms = function () {};
+</script>
+<script type="text/javascript" src="/var/FPI.js"></script>
+</body>
+</html>

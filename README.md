@@ -3,6 +3,8 @@ FrontPage
 
 Applies a WKWebview to the homescreen. Along with the webview, it calls code within the html to supply iOS info such as battery, music, apps, switcher, signal, wifi, notifications, and other info.
 
+This allows anyone to remake the entire springboard in a webpage type fashion getting rid of the stock grid look that iOS has had since the beginning.
+
 Note: FrontPage's source code is provided for reference purposes only. Modification and redistribution are *not* permitted.
 
 iOS to WebView Calls
@@ -19,6 +21,15 @@ Calls sent from the html to the tweak is handle by setting window.location = 'fr
 
 Full API <a href="http://junesiphone.com/frontpage/">here</a>.
 
+Setup FrontPage
+----
+
+Enable FrontPage in settings/FrontPage
+Choose Top
+Hide Dock, Icons, and Dots.
+Respring.
+
+While on the springboard use 2 FINGERS and swipe down. You will see FrontPage's theme selection menu. One theme is installed by default but you can find other themes on my repo.
 
 Credits
 ----

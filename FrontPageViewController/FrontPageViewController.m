@@ -37,6 +37,8 @@
 #import <AudioToolbox/AudioServices.h>
 #import <sys/utsname.h>
 
+ #import <WebKit/WKWebsiteDataStore.h>
+
 #define deviceVersion [[[UIDevice currentDevice] systemVersion] floatValue]
 
 @interface FrontPageViewController ()
@@ -283,7 +285,6 @@ void alertrespring (CFNotificationCenterRef center,FrontPageViewController * obs
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSLog(@"FPPlus View Did load");
     [self setScreenIsOn:YES];
     
     if(!store){
@@ -766,6 +767,58 @@ void newAppUpdated(CFNotificationCenterRef center,FrontPageViewController * obse
     NSLog(@"FrontPageInfo newAppUpdated");
     [observer injectSingleApp];
 }
+
+/*
+    SnowBoard stuffs
+    When snowboard theme is changed FP needs to:
+        1. Detect when SnowBoard theme is changed
+        2. Save new icons to FrontPageCache
+        3. Clear FP webview cache (mainly image cache)
+        4. Reload the theme.
+ 
+    Issues:
+        Need to wait for SnowBoard to finish changing icons.
+        Need to wait on FP to finish saving icons.
+        Delay of 1 second handles this but isn't ideal.
+*/
+
+-(void)removeWebViewCaches{
+    NSSet *websiteDataTypes= [NSSet setWithArray:@[
+                                                   WKWebsiteDataTypeDiskCache,
+                                                   //WKWebsiteDataTypeOfflineWebApplicationCache,
+                                                   WKWebsiteDataTypeMemoryCache,
+                                                   //WKWebsiteDataTypeLocalStorage,
+                                                   //WKWebsiteDataTypeCookies,
+                                                   //WKWebsiteDataTypeSessionStorage,
+                                                   //WKWebsiteDataTypeIndexedDBDatabases,
+                                                   //WKWebsiteDataTypeWebSQLDatabases,
+                                                   //WKWebsiteDataTypeFetchCache, //(iOS 11.3, *)
+                                                   //WKWebsiteDataTypeServiceWorkerRegistrations, //(iOS 11.3, *)
+                                                   ]];
+    //NSSet *websiteDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+    NSDate *dateFrom = [NSDate dateWithTimeIntervalSince1970:0];
+    [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:websiteDataTypes modifiedSince:dateFrom completionHandler:^{
+        // Could reload here if needed.
+    }];
+}
+
+-(void)reloadForSnowBoard{
+    dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 1.0);
+    dispatch_after(delay, dispatch_get_main_queue(), ^(void){
+        if(![[FrontPageViewController sharedInstance] isIconLock]){
+            [FPIApps saveAllIconImagesWithObserver:self];
+        }
+        dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.2);
+        dispatch_after(delay, dispatch_get_main_queue(), ^(void){
+            [self removeWebViewCaches];
+            [_themeView reload];
+        });
+    });
+}
+void updateSnowBoardApps(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+        [observer reloadForSnowBoard];
+}
+
 void updatingApps(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
     NSLog(@"FrontPageInfo updatingApps");
     [observer injectAppsIsNotification:YES];
@@ -806,6 +859,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), (__bridge const void *)(self), CFSTR("com.junesiphone.frontpage.updatingmusic"), NULL);
     CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), (__bridge const void *)(self), CFSTR("com.junesiphone.frontpage.updatingnotifications"), NULL);
     CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), (__bridge const void *)(self), CFSTR("com.junesiphone.frontpage.updatingalarm"), NULL);
+    CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), (__bridge const void *)(self), CFSTR("com.spark.snowboard.refresh"), NULL);
 }
 
 #pragma mark - Injections
@@ -1027,6 +1081,9 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)newAppUpdated,CFSTR("com.junesiphone.frontpage.app"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
 
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)updatingApps,CFSTR("com.junesiphone.frontpage.updatingapps"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
+        
+        //Spark's SnowBoard
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)updateSnowBoardApps,CFSTR("com.spark.snowboard.refresh"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
 
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)updatingInstalledApps,CFSTR("com.junesiphone.frontpage.newappinstalled"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
     }
@@ -1100,6 +1157,7 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
         CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), (__bridge const void *)(self), CFSTR("com.junesiphone.frontpage.openmenu"), NULL);
         CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), (__bridge const void *)(self), CFSTR("com.junesiphone.frontpage.respring"), NULL);
         CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), (__bridge const void *)(self), CFSTR("com.junesiphone.frontpage.deviceunlock"), NULL);
+        CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), (__bridge const void *)(self), CFSTR("com.spark.snowboard.refresh"), NULL);
 
         CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.disableFrontPage"), NULL, NULL, true);
 
@@ -1492,14 +1550,31 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     }
 }
 -(void)playmusic{
-    [[objc_getClass("SBMediaController") sharedInstance] togglePlayPause];
+    SBMediaController* MC = [objc_getClass("SBMediaController") sharedInstance];
+    if ([MC respondsToSelector:@selector(togglePlayPause)]) {
+        [MC togglePlayPause];
+    }else if ([MC respondsToSelector:@selector(togglePlayPauseForEventSource:)]){
+        [MC togglePlayPauseForEventSource:1];
+    }
 }
 -(void)nexttrack{
-    [[objc_getClass("SBMediaController") sharedInstance] changeTrack:1];
+    SBMediaController* MC = [objc_getClass("SBMediaController") sharedInstance];
+    if ([MC respondsToSelector:@selector(changeTrack:)]) {
+        [MC changeTrack:1];
+    }else if ([MC respondsToSelector:@selector(changeTrack:eventSource:)]){
+        [MC changeTrack:1 eventSource:1];
+    }
 }
+//- (_Bool)changeTrack:(int)arg1 eventSource:(long long)arg2;
 -(void)prevtrack{
-    [[objc_getClass("SBMediaController") sharedInstance] changeTrack:-1];
+    SBMediaController* MC = [objc_getClass("SBMediaController") sharedInstance];
+    if ([MC respondsToSelector:@selector(changeTrack:)]) {
+        [MC changeTrack:-1];
+    }else if ([MC respondsToSelector:@selector(changeTrack:eventSource:)]){
+        [MC changeTrack:-1 eventSource:1];
+    }
 }
+
 -(void)vibrate{
     AudioServicesPlayAlertSoundWithCompletion(kSystemSoundID_Vibrate, nil);
 }

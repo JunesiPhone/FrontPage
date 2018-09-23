@@ -8,7 +8,7 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>Enable/Disable FrontPage. Note: Screen will dim to lockscreen when disabled.</string>
+			<string>Enable/Disable FrontPage. Requires respring.</string>
 			<key>label</key>
 			<string></string>
 		</dict>
@@ -30,29 +30,7 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>When enabled the applied FrontPage widget will not receive or block any touches. (SBHTML Mode)</string>
-			<key>label</key>
-			<string></string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>defaults</key>
-			<string>com.junesiphone.frontpage</string>
-			<key>key</key>
-			<string>userinteraction</string>
-			<key>default</key>
-			<false/>
-			<key>label</key>
-			<string>Disable User Interaction</string>
-			<key>PostNotification</key>
-			<string>com.junesiphone.frontpage/preferences.changed</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>The top and bottom options set where FrontPage is placed. Top will put FrontPage on top of the icons, bottom will put it below the icons. When below SpringBoard icons can still be pressed. You can also still interact with the FrontPage theme below. A theme must define its size to benefit from this.</string>
+			<string>Majority of the time set to top, but can be set to bottom on certain themes to allow interaction with stock icons</string>
 			<key>label</key>
 			<string></string>
 		</dict>
@@ -78,34 +56,11 @@
             <key>PostNotification</key>
             <string>com.junesiphone.frontpage/preferences.changed</string>
         </dict>
-
-		<dict>
+        <dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>Once you enable FrontPage the current SpringBoard icons are cached. If a FrontPage theme uses icons it can use these cached icons and therefore doesn't require Anemone to theme those icons. If you want to disable Anemone, but keep the themed icons, enable this.</string>
-			<key>label</key>
 			<string></string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>default</key>
-			<false/>
-			<key>defaults</key>
-			<string>com.junesiphone.frontpage</string>
-			<key>key</key>
-			<string>iconlock</string>
-			<key>label</key>
-			<string>Keep Current Icons</string>
-			<key>PostNotification</key>
-			<string>com.junesiphone.frontpage/preferences.changed</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>Download hidestatusbars to hide statusbar</string>
 			<key>label</key>
 			<string></string>
 		</dict>
@@ -155,49 +110,23 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>Show installed themes, and apply them. Must have FrontPage enabled. You can also use 2 finger swipe down on springboard to show menu.</string>
+			<string>Enable FrontPage
+Choose Top
+Hide Dock
+Hide Icons
+Hide Dots
+Respring
+While on the springboard use 2 FINGERS and swipe down.</string>
+			<key>label</key>
+			<string>Instructions</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string></string>
 			<key>label</key>
 			<string></string>
-		</dict>
-		<dict>
-			<key>action</key>
-			<string>menu</string>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>label</key>
-			<string>ShowMenu</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>Enable FrontPage, choose your user interaction option, top or bottom, hide elements you want hidden, finally press show Menu.</string>
-			<key>label</key>
-			<string>Quick Start</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>Some themes have a one finger swipe down gesture. If user interaction is not disabled and you swipe down with one finger, the FrontPage menu will show. Two finger swipe up will show iWidget Menu. If FrontPage is set to bottom you can move iWidgets by tap hold.</string>
-			<key>label</key>
-			<string>Tips:</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>IMPORTANT: On iOS8 you will need to have top selected, otherwise menu will be below icons.</string>
-			<key>label</key>
-			<string>iOS8:</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>FrontPage © 2017 by @JunesiPhone</string>
-			<key>isStaticText</key>
-			<true/>
 		</dict>
 		<dict>
 			<key>action</key>
@@ -206,6 +135,58 @@
 			<string>PSButtonCell</string>
 			<key>label</key>
 			<string>Respring</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>When enabled the applied FrontPage widget will not receive or block any touches. (SBHTML Mode)</string>
+			<key>label</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>com.junesiphone.frontpage</string>
+			<key>key</key>
+			<string>userinteraction</string>
+			<key>default</key>
+			<false/>
+			<key>label</key>
+			<string>Disable User Interaction</string>
+			<key>PostNotification</key>
+			<string>com.junesiphone.frontpage/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>If enabled will keep Anemone themed icons for FP themes even if Anemone is disabled.</string>
+			<key>label</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.junesiphone.frontpage</string>
+			<key>key</key>
+			<string>iconlock</string>
+			<key>label</key>
+			<string>Keep Current Icons</string>
+			<key>PostNotification</key>
+			<string>com.junesiphone.frontpage/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>FrontPage © 2018 by @JunesiPhone</string>
+			<key>isStaticText</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>action</key>
@@ -229,7 +210,7 @@
 			<key>cell</key>
 			<string>PSButtonCell</string>
 			<key>label</key>
-			<string>FrontPage Info</string>
+			<string>FrontPage Info (API)</string>
 		</dict>
 		<dict>
 			<key>action</key>

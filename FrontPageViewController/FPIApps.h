@@ -11,8 +11,9 @@
 
 
 @interface FPIApps : NSObject
-
 +(void)saveAllIconImagesWithObserver: (id)observer;
 +(NSMutableArray *) appsInfo;
++(NSArray *) springboardIcons;
 @end
+
 

@@ -17,31 +17,8 @@ WebView to iOS Calls
 
 Calls sent from the html to the tweak is handle by setting window.location = 'frontpage:something' the tweak will check if the string contains frontpage and then will try to forward it to any method inside.
 
+Full API <a href="http://junesiphone.com/frontpage/">here</a>.
 
-window.location = 'frontpage:opennc';
-window.location = 'frontpage:opencc';
-window.location = 'frontpage:disablewifi';
-window.location = 'frontpage:enablewifi';
-window.location = 'frontpage:respring';
-window.location = 'frontpage:sleep';
-window.location = 'frontpage:uninstallApp:APPBUNDLE';
-window.location = 'frontpage:openApp:APPBUNDLE';
-window.location = 'frontpage:loadSettings:var/mobile/Documents/FrontPage.plist';
-window.location = "frontpage:showMenu";
-window.location = 'frontpage:vibrate';
-
-Manual Updates
-window.location = 'frontpage:updateMemory';
-window.location = 'frontpage:refreshWeather';
-
-Nyx special
-window.location = 'frontpage:isntInTerminal';
-window.location = 'frontpage:isInTerminal';
-
-Music
-window.location = 'frontpage:prevtrack';
-window.location = 'frontpage:nexttrack';
-window.location = 'frontpage:playmusic';
 
 Credits
 ----

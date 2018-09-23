@@ -8,7 +8,7 @@ Note: FrontPage's source code is provided for reference purposes only. Modificat
 iOS to WebView Calls
 ----
 
-Calls are sent via stringByEvaluatingJavaScriptFromString this does of course require the widget has specific functions to gather and parse such info. One main function FPIInfo handles the parsing. Each call sent to FPIInfo is followed by another function that says that info is loaded. For example if we call FPI and push battery info after it is done it will call updateBattery() this provides a fast way for the webview to get the info and to know when the info is sent without the need of timers.
+Full API <a href="http://junesiphone.com/frontpage/">here</a>.
 
 A compiled version can be found on my Cydia repo <a href="http://junesiphone.com/supersecret/">here</a>.
 

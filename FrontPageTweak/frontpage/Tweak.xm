@@ -249,18 +249,28 @@ static void hideShowItems(){
 		[topViewSB bringSubviewToFront:insView];
 	}
 }
-//when app closes? and when screen unlocks
+//when app closes? and when screen unlocks iOS9, iOS10
 %hook SBLockScreenManager
 	-(void)_finishUIUnlockFromSource:(int)arg1 withOptions:(id)arg2 {
 		%orig;
+		NSLog(@"FPTest unlocked1");
 		hideShowItems();
 		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.deviceunlock"), NULL, NULL, true);
-		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingsystem"), NULL, NULL, true);
+		//CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingsystem"), NULL, NULL, true);
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.manualupdatingsystem"), NULL, NULL, true);
+	}
+%end
+
+//iOS 11
+%hook SBCoverSheetPresentationManager
+	- (void)_relinquishHomeGesture{ 
+		NSLog(@"FPTest unlocked");
+		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.manualupdatingsystem"), NULL, NULL, true);
+		%orig;
 	}
 %end
 
 static void showRespringAlert(){
-	NSLog(@"FPRespring called");
 	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.alertrespring"), NULL, NULL, true);
 }
 static void disableFrontPage(){
@@ -544,18 +554,28 @@ bool isShowingHS = NO;
     %orig;
 }
 
+//stop multiple calls in a row.
+int frontPageDisplayCallCount = 0;
 
-//[statusBar setForegroundAlpha:0 animationParameters:animationParams];
+//When app closes
 -(void)frontDisplayDidChange:(id)arg1{
 	if(isShowingHS){
-		NSLog(@"FrontPageInfo Tweak: frontDisplayDidChange update music and App Info");
-		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingswitcher"), NULL, NULL, true);
-		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingmusic"), NULL, NULL, true);
-		CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingapps"), NULL, NULL, true);
+		if(frontPageDisplayCallCount == 0){
+			frontPageDisplayCallCount = 1;
+			CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingswitcher"), NULL, NULL, true);
+			CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingmusic"), NULL, NULL, true);
+			CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.updatingapps"), NULL, NULL, true);
+			CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.junesiphone.frontpage.manualupdatingsystem"), NULL, NULL, true);
+			dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 2);
+			dispatch_after(delay, dispatch_get_main_queue(), ^(void){
+			    frontPageDisplayCallCount = 0;
+			});
+		}
 	}
 	hideShowItems();
     %orig;
 }
+
 -(long long)_frontMostAppOrientation{
 	//goHideDock();
 	//NSLog(@"FrontPageInfo Tweak frontMostChanged");

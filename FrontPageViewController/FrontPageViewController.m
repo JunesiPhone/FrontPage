@@ -748,6 +748,11 @@ void systemCalled(CFNotificationCenterRef center,FrontPageViewController * obser
     [observer injectSystemIsNotification:YES];
     [observer checkPendingNotifications];
 }
+
+void manualSystemCalled(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
+    [observer manualCallSystem];
+}
+
 void batteryCalled(CFNotificationCenterRef center,FrontPageViewController * observer,CFStringRef name,const void * object,CFDictionaryRef userInfo){
     NSLog(@"FrontPageInfo batteryCalled");
     [observer injectBatteryIsNotification:YES];
@@ -898,6 +903,17 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     NSDictionary* systemInfo = [FPISystem systemInfo];
     [self convertDictToJSON:systemInfo withName:@"system"];
     [self callJSFunction:@"loadSystem()"];
+}
+
+-(void)manualCallSystem{
+    NSLog(@"FPTest manual call loadSystem");
+    NSDictionary* systemInfo = [FPISystem systemInfo];
+    [self convertDictToJSON:systemInfo withName:@"system"];
+    [self callJSFunction:@"loadSystem()"];
+    
+    NSDictionary* batteryInfo = [FPIBattery batteryInfo];
+    [self convertDictToJSON:batteryInfo withName:@"battery"];
+    [self callJSFunction:@"loadBattery()"];
 }
 
 -(void)injectBatteryIsNotification: (bool)notification{
@@ -1062,6 +1078,8 @@ void updatingAlarm(CFNotificationCenterRef center,FrontPageViewController * obse
     if(system){
         [self injectSystemIsNotification:NO];
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)systemCalled,CFSTR("com.junesiphone.frontpage.updatingsystem"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
+        
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),(__bridge const void *)(self),(CFNotificationCallback)manualSystemCalled,CFSTR("com.junesiphone.frontpage.manualupdatingsystem"),NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
     }
     if(battery){
         [self injectBatteryIsNotification:NO];

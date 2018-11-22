@@ -1,3 +1,12 @@
 #!/bin/bash
 
-chown mobile:mobile /var/mobile/Library/WebKit
+echo "Setting correct permissions"
+
+
+if [ -d /var/mobile/Library/WebKit ]; then
+	echo "WebKit folder exists setting permissions"
+	chown mobile:mobile /var/mobile/Library/WebKit
+fi
+
+echo "Settings permissions on Documents folder"
+chown mobile:mobile /var/mobile/Documents
